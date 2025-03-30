@@ -1,0 +1,93 @@
+package com.wtb.model;
+
+import com.wtb.model.LiveRoomState;
+import com.wtb.model.Order;
+import com.wtb.model.Question
+import com.wtb.livesystem.streamer.SpeechType;
+
+// 话术选择规则
+rule "无人时使用话术_无人"
+when
+    $state : LiveRoomState(audience == 0)
+then
+    $state.activateSpeech = (com.wtb.livesystem.streamer.SpeechType.Nobody);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_无人");
+end
+
+rule "少人时使用话术_少人"
+when
+    $state : LiveRoomState(audience > 0 && audience < 5)
+then
+    $state.activateSpeech =(SpeechType.Few);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_少人");
+end
+
+rule "中等人时使用话术_中等人"
+when
+    $state : LiveRoomState(audience >= 5 && audience < 10)
+then
+    $state.activateSpeech = (SpeechType.Medium);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_中等人");
+end
+
+rule "较多人时使用话术_较多人"
+when
+    $state : LiveRoomState(audience >= 10 && audience < 20)
+then
+    $state.activateSpeech = (SpeechType.Many);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_较多人");
+end
+
+rule "多人时使用话术_拥挤"
+when
+    $state : LiveRoomState(audience >= 20 && audience < 50)
+then
+    $state.activateSpeech = (SpeechType.Crowd);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_多人");
+end
+
+rule "超多时使用话术_超多"
+when
+    $state : LiveRoomState(audience >= 50 && audience < 100)
+then
+    $state.activateSpeech = (SpeechType.Super);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_超多");
+end
+
+rule "巨多时使用话术_巨多"
+when
+    $state : LiveRoomState(audience >= 100)
+then
+    $state.activateSpeech = (SpeechType.Mega);
+    System.out.println("[话术] " + $state.audience + "人 → 话术_巨多");
+end
+
+// 互动暖场规则
+rule "两分钟没有问题时，使用暖场"
+when
+    $state : LiveRoomState($state.pendingQuestions.size() > 0)
+then
+    System.out.println("[互动] 回答问题, 个数" + $state.pendingQuestions.size());
+end
+
+// 下单感谢规则
+rule "1到3个订单时使用感谢话术(1到3)"
+when
+    $state : LiveRoomState($state.ordersList.size() >= 1 && $state.ordersList.size() <= 3)
+then
+    System.out.println("[感谢] 当前订单数 " + $state.ordersList.size() + " → 感谢话术(1到3)");
+end
+
+rule "3到10个订单时使用感谢话术(3到10)"
+when
+    $state : LiveRoomState($state.ordersList.size() > 3 && $state.ordersList.size() <= 10)
+then
+    System.out.println("[感谢] 当前订单数 " + $state.ordersList.size() + " → 感谢话术(3到10)");
+end
+
+rule "10个以上订单时使用感谢话术(10+)"
+when
+    $state : LiveRoomState($state.ordersList.size() > 10)
+then
+    System.out.println("[感谢] 当前订单数 " + $state.ordersList.size() + " → 感谢话术(10+)");
+end

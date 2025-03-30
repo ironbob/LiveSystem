@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Configurations</title>
+</head>
+<body>
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<h1>Configurations for <span th:text="${app.name}"></span></h1>
+
+<h2>Create New Configuration</h2>
+<form th:action="@{/apps/{appId}/configs(appId=${app.id})}"
+      th:object="${newConfig}" method="post">
+    <div>
+        <label>Config Name:</label>
+        <input type="text" th:field="*{name}" required>
+    </div>
+    <div>
+        <label>JSON Configuration:</label>
+        <textarea th:field="*{json}" rows="10" cols="50" required></textarea>
+    </div>
+    <button type="submit">Create</button>
+</form>
+
+<h2>Existing Configurations</h2>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="config : ${configs}">
+        <td th:text="${config.configName}"></td>
+        <td>
+            <a th:href="@{/apps/{appId}/configs/{configId}/edit(appId=${app.id}, configId=${config.id})}"
+               class="btn btn-primary">Edit</a>
+            <a th:href="@{/apps/{appId}/configs/{configId}/download(appId=${app.id}, configId=${config.id})}"
+               class="btn btn-success">Download</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

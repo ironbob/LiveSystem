@@ -1,0 +1,60 @@
+{
+  "name": "深夜读书主播",
+  "type": "有声读物",
+  "baseParameter": {
+    "speedRate": 0.8,
+    "volume": 0.7,
+    "breakProbability": 0.3,
+    "breakDurationRange": {
+      "start": 1000,
+      "end": 3000
+    },
+    "breathProbability": 0.25,
+    "breathDurationRange": {
+      "start": 500,
+      "end": 1500
+    },
+    "fillWordsProbability": 0.05,
+    "speechErrorProbability": 0.01
+  },
+  "emotions": [
+    {
+      "name": "温柔",
+      "bias": {
+        "speedRateBias": -0.1,
+        "volumeBias": -0.05,
+        "breakProbabilityBias": 0.1,
+        "breakDurationRangeBias": {
+          "start": 200,
+          "end": 500
+        },
+        "breathProbabilityBias": 0.1,
+        "breathDurationRangeBias": {
+          "start": 200,
+          "end": 400
+        },
+        "fillWordsProbabilityBias": -0.02,
+        "speechErrorProbabilityBias": -0.005
+      }
+    },
+    {
+      "name": "深情",
+      "bias": {
+        "speedRateBias": -0.15,
+        "volumeBias": 0.05,
+        "breakProbabilityBias": 0.15,
+        "breakDurationRangeBias": {
+          "start": 300,
+          "end": 600
+        },
+        "breathProbabilityBias": 0.15,
+        "breathDurationRangeBias": {
+          "start": 300,
+          "end": 500
+        },
+        "fillWordsProbabilityBias": -0.03,
+        "speechErrorProbabilityBias": -0.01
+      }
+    }
+  ]
+}
