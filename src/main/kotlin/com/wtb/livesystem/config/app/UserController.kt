@@ -38,9 +38,9 @@ class UserController(
         try {
             val user = userService.registerUser(
                 username = username,
-                rawPassword = passwordEncoder.encode(password)
+                rawPassword = password
             )
-            println("用户注册成功: $username")
+            println("用户注册成功: $user")
         } catch (e: Exception) {
             println("注册失败: ${e.message}")
             model.addAttribute("error", "注册失败，请稍后重试")

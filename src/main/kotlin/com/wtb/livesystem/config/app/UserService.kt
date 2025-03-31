@@ -17,7 +17,7 @@ class UserService(
     // 注册新用户
     fun registerUser(username: String, rawPassword: String): User {
         require(username.isNotBlank()) { "Username cannot be blank" }
-        require(rawPassword.length >= 8) { "Password must be at least 8 characters" }
+        require(rawPassword.length >= 6) { "Password must be at least 6 characters" }
 
         if (userRepository.existsByUsername(username)) {
             throw IllegalArgumentException("Username already exists")
