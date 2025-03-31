@@ -20,8 +20,9 @@
                     <div th:if="${param.logout}" class="alert alert-success">
                         您已成功注销
                     </div>
-
-                    <!-- 修正表单action为绝对路径 -->
+                    <div th:if="${param.registerSuccess}" class="alert alert-success">
+                        注册成功，请登录！
+                    </div>
                     <form th:action="@{/login}" method="post">
                         <div class="mb-3">
                             <label for="username" class="form-label">用户名</label>
@@ -33,6 +34,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100">登录</button>
                     </form>
+
 
                     <!-- 修正注册链接为绝对路径 -->
                     <div class="mt-3 text-center">
