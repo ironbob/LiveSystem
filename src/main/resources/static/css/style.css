@@ -1,0 +1,17 @@
+.hidden {
+    display: none;
+}
+
+.config-version {
+    cursor: pointer;
+}
+
+.config-version.active {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+#configEditor {
+    font-family: monospace;
+    min-height: 300px;
+}
