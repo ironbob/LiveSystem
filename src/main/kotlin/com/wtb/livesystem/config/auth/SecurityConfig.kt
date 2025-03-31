@@ -21,17 +21,17 @@ class SecurityConfig(
     private val passwordEncoder: PasswordEncoder,
 ) {
 
-//    @Bean
-//    fun webSecurityCustomizer(): WebSecurityCustomizer {
-//        return WebSecurityCustomizer { web ->
-//            web.ignoring().requestMatchers(
-//                "/h2-console/**",
-//                "/webjars/**",
-//                "/css/**",
-//                "/js/**"
-//            )
-//        }
-//    }
+    @Bean
+    fun webSecurityCustomizer(): WebSecurityCustomizer {
+        return WebSecurityCustomizer { web ->
+            web.ignoring().requestMatchers(
+                "/h2-console/**",
+                "/webjars/**",
+                "/css/**",
+                "/js/**"
+            )
+        }
+    }
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
