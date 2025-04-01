@@ -4,6 +4,7 @@ import com.wtb.livesystem.config.app.model.App
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+
 @Service
 class AppService(
     private val appRepository: AppRepository,
@@ -64,6 +65,12 @@ class AppService(
             username,
             PageRequest.of(0, limit)
         ).content
+    }
+
+    // **新增方法：保存App对象**
+    @Transactional
+    fun save(app: App): App {
+        return appRepository.save(app)
     }
 }
 

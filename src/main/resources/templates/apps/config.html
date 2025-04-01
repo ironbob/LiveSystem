@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>配置管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .catchphrase-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f8f9fa;
+        }
+        .small-upload {
+            max-width: 300px;
+        }
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="mb-3">应用配置</h2>
+    <!-- Toast 消息 -->
+    <div th:if="${success}" class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" th:text="${success}"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <form th:action="@{/apps/{id}/configs/save(id=${app.id})}" method="post">
+        <div class="row">
+            <!-- 口头禅 -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label"><strong>口头禅</strong></label>
+                    <textarea class="form-control" name="catchphrases" rows="5" th:text="${#strings.listJoin(liveConfig.catchphrases, '\n')}"></textarea>
+                </div>
+            </div>
+            <!-- 备选口头禅 -->
+            <div class="col-md-6">
+                <label class="form-label"><strong>备选口头禅</strong></label>
+                <div class="catchphrase-list">
+                    <p class="mb-1">🔥 "欢迎来到我的直播间！"</p>
+                    <p class="mb-1">🌟 "别忘了关注哦！"</p>
+                    <p class="mb-1">💖 "喜欢就点个赞吧！"</p>
+                    <p class="mb-1">🎉 "分享给朋友，让更多人看到！"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 直播话术稿 -->
+        <div class="mb-3">
+            <label class="form-label"><strong>话术稿</strong></label>
+            <textarea class="form-control" name="scripts" rows="8" th:text="${#strings.listJoin( liveConfig.scripts ,'\n') }"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">保存</button>
+    </form>
+
+    <hr>
+
+    <!-- JSON 配置上传 -->
+    <form th:action="@{/apps/{id}/configs/upload-json(id=${app.id})}" method="post" enctype="multipart/form-data" class="small-upload">
+        <label class="form-label"><strong>上传播放节奏 JSON</strong></label>
+        <input type="file" class="form-control mb-2" name="file" accept=".json">
+        <button type="submit" class="btn btn-success btn-sm">上传</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 自动触发 Toast -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successToast = document.getElementById("successToast");
+        if (successToast) {
+            var toast = new bootstrap.Toast(successToast);
+            toast.show();
+        }
+    });
+</script>
+</body>
+</html>

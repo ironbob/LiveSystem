@@ -1,5 +1,6 @@
 package com.wtb.livesystem.config.app.model
 
+import com.wtb.livesystem.config.app.LiveConfig
 import com.wtb.livesystem.streamer.config.app.StreamerConfig
 import jakarta.persistence.*
 import java.time.Instant
@@ -25,9 +26,19 @@ data class App(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    val user: User
+    val user: User,
+
+    @OneToOne(mappedBy = "app", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var liveConfig: LiveConfig? = null // 直播配置 (可选)
 ) {
     fun updateLastModified() {
         lastUpdatedAt = Instant.now()
     }
+
+    fun initializeLiveConfig() {
+        if (liveConfig == null) {
+            liveConfig = LiveConfig(app = this)
+        }
+    }
 }
+

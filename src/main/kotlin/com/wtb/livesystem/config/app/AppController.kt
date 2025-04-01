@@ -26,19 +26,19 @@ class AppController(
         val username = principal.name
         model.addAttribute("apps", appService.findByUsername(username))
         model.addAttribute("currentUser", userService.findByUsername(username))
-        return "apps/list"
+        return "apps/apps"
     }
 
-    // 创建新App (表单提交)
+
     @PostMapping
     fun createApp(
         @RequestParam name: String,
-        @RequestParam description: String, // 新增参数
+        @RequestParam description: String,
         principal: Principal,
         redirectAttributes: RedirectAttributes
     ): String {
         return try {
-            appService.createApp(name, description = "null", principal.name)
+            appService.createApp(name, description, principal.name) // 这里传入用户填写的描述
             redirectAttributes.addFlashAttribute("success", "App created successfully")
             "redirect:/apps"
         } catch (e: Exception) {
@@ -59,7 +59,6 @@ class AppController(
         return "apps/show"
     }
 
-    // 删除App
     @PostMapping("/{appId}/delete")
     fun deleteApp(
         @PathVariable appId: Long,
@@ -72,43 +71,6 @@ class AppController(
         return "redirect:/apps"
     }
 
-    // 显示App下的所有配置
-    @GetMapping("/{appId}/configs")
-    fun listConfigs(
-        @PathVariable appId: Long,
-        model: Model,
-        principal: Principal
-    ): String {
-        validateOwnership(appId, principal.name)
-        model.addAttribute("app", appService.findById(appId))
-        model.addAttribute("configs", streamerConfigService.findByAppId(appId))
-        model.addAttribute("newConfig", StreamerConfigDto())
-        return "configs/list"
-    }
-
-    // 创建新配置
-    @PostMapping("/{appId}/configs")
-    fun createConfig(
-        @PathVariable appId: Long,
-        @ModelAttribute("newConfig") configDto: StreamerConfigDto,
-        principal: Principal,
-        redirectAttributes: RedirectAttributes
-    ): String {
-        validateOwnership(appId, principal.name)
-
-        return try {
-            streamerConfigService.createConfig(
-                appId = appId,
-                configName = configDto.name,
-                jsonConfig = configDto.json
-            )
-            redirectAttributes.addFlashAttribute("success", "Configuration created successfully")
-            "redirect:/apps/$appId/configs"
-        } catch (e: Exception) {
-            redirectAttributes.addFlashAttribute("error", "Failed to create config: ${e.message}")
-            "redirect:/apps/$appId/configs"
-        }
-    }
 
     // 下载配置文件
     @GetMapping("/{appId}/configs/{configId}/download")
@@ -133,12 +95,6 @@ class AppController(
         }
     }
 }
-
-// 数据传输对象(DTO)
-data class StreamerConfigDto(
-    val name: String = "",
-    val json: String = ""
-)
 
 // 扩展函数：将InputStream转换为Resource
 fun InputStream.toResource(): Resource {
