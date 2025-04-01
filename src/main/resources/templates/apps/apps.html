@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的应用</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">App配置管理系统</a>
+        <div class="collapse navbar-collapse">
+            <span class="navbar-text me-3" th:text="${currentUser.username}"></span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-light">注销</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>我的应用</h2>
+        <!-- 触发模态框的按钮 -->
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createAppModal">
+            创建新应用
+        </button>
+
+        <!-- 创建应用的模态框 -->
+        <div class="modal fade" id="createAppModal" tabindex="-1" aria-labelledby="createAppModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createAppModalLabel">创建新应用</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/apps}" method="post">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="appName" class="form-label">应用名称</label>
+                                <input type="text" class="form-control" id="appName" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="appDescription" class="form-label">应用描述</label>
+                                <textarea class="form-control" id="appDescription" name="description"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary">创建</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>应用名称</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="app : ${apps}">
+            <td th:text="${app.id}"></td>
+            <td>
+                <a th:href="@{/apps/{id}(id=${app.id})}" th:text="${app.name}"></a>
+            </td>
+            <td th:text="${#temporals.format(app.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+                <a th:href="@{/apps/{id}/configs(id=${app.id})}" class="btn btn-sm btn-info">管理配置</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Bootstrap 5 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
