@@ -11,6 +11,7 @@ import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import java.io.File
 import java.io.IOException
 
 @Controller
@@ -25,8 +26,12 @@ class ConfigController(
         app.initializeLiveConfig() // 确保 LiveConfig 存在
         appService.save(app)
 
+        val resource = ClassPathResource("static/catchphrases.txt")
+        val exampleCatchphrases = resource.inputStream.bufferedReader().readLines()
+
         model.addAttribute("app", app)
         model.addAttribute("liveConfig", app.liveConfig)
+        model.addAttribute("exampleCatchphrases", exampleCatchphrases) // 传递示例口头禅列表
         return "apps/config"
     }
 
