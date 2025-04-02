@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>配置管理</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .container {
             position: relative;
@@ -116,6 +117,36 @@
             background-color: #1dd1a1;
             border-color: #1dd1a1;
         }
+        .script-item {
+            position: relative;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .script-toggle {
+            color: #6c757d;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .script-toggle:hover {
+            color: #0d6efd;
+        }
+
+        .script-toggle i {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .script-toggle[aria-expanded="true"] i {
+            transform: rotate(90deg);
+        }
+
+        .collapse {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -168,21 +199,32 @@
         <!-- 分隔线 -->
         <div class="divider"></div>
 
-        <!-- 话术稿区域 -->
         <div class="form-section">
             <div class="section-title">话术稿</div>
             <div id="script-container" class="section-content">
-                <th:block th:each="script : ${liveConfig.scripts}">
+                <th:block th:each="script, iter : ${liveConfig.scripts}">
                     <div class="script-item mb-3">
-                        <div class="form-label">话术稿名称</div>
-                        <input type="text" class="form-control" name="scriptNames" th:value="${script.name}">
-                        <div class="form-label">讲解内容</div>
-                        <textarea class="form-control" name="explanation" rows="4" th:text="${script.explanation}"></textarea>
-                        <div class="form-label">暖场内容</div>
-                        <textarea class="form-control" name="warmUpContent" rows="4" th:text="${script.warmUpContent}"></textarea>
-                        <div class="form-label">触发规则</div>
-                        <textarea class="form-control" name="triggers" rows="4" th:text="${#strings.listJoin(script.triggers, ',')}"></textarea>
-                        <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
+                        <!-- 修改按钮，添加唯一标识 -->
+                        <button type="button" class="btn btn-link btn-sm mb-2 float-end script-toggle"
+                                data-bs-toggle="collapse"
+                                th:data-bs-target="'#scriptCollapse-' + ${iter.index}"
+                                th:aria-controls="'scriptCollapse-' + ${iter.index}"
+                                th:onclick="toggleCollapseIcon(${iter.index})">
+                            <i class="fas fa-chevron-down" th:id="'collapseIcon-' + ${iter.index}"></i>
+                        </button>
+
+                        <!-- 修改折叠区域，使用索引作为唯一标识 -->
+                        <div th:id="'scriptCollapse-' + ${iter.index}" class="collapse">
+                            <div class="form-label">话术稿名称</div>
+                            <input type="text" class="form-control" name="scriptNames" th:value="${script.name}">
+                            <div class="form-label">讲解内容</div>
+                            <textarea class="form-control" name="explanation" rows="4" th:text="${script.explanation}"></textarea>
+                            <div class="form-label">暖场内容</div>
+                            <textarea class="form-control" name="warmUpContent" rows="4" th:text="${script.warmUpContent}"></textarea>
+                            <div class="form-label">触发规则</div>
+                            <textarea class="form-control" name="triggers" rows="4" th:text="${#strings.listJoin(script.triggers, ',')}"></textarea>
+                            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
+                        </div>
                     </div>
                 </th:block>
             </div>
@@ -247,13 +289,34 @@
     function removeCatchphrase(button) {
         button.parentElement.remove();
     }
-
-    // 添加话术稿
+    // 添加新的脚本函数处理图标切换
+    function toggleCollapseIcon(index) {
+        const icon = document.getElementById(`collapseIcon-${index}`);
+        if (icon.classList.contains('fa-chevron-down')) {
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    }
+    // 修改addScript函数以正确处理新添加的元素
     function addScript() {
         let container = document.getElementById("script-container");
         let newScript = document.createElement("div");
+        let newIndex = container.children.length; // 获取新索引
+
         newScript.classList.add("script-item", "mb-3");
         newScript.innerHTML = `
+        <button type="button" class="btn btn-link btn-sm mb-2 float-end script-toggle"
+                data-bs-toggle="collapse"
+                data-bs-target="#scriptCollapse-${newIndex}"
+                aria-controls="scriptCollapse-${newIndex}"
+                onclick="toggleCollapseIcon(${newIndex})">
+            <i class="fas fa-chevron-down" id="collapseIcon-${newIndex}"></i>
+        </button>
+
+        <div id="scriptCollapse-${newIndex}" class="collapse show">
             <div class="form-label">话术稿名称</div>
             <input type="text" class="form-control" name="scriptNames">
             <div class="form-label">讲解内容</div>
@@ -263,14 +326,28 @@
             <div class="form-label">触发规则</div>
             <textarea class="form-control" name="triggers" rows="4"></textarea>
             <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
-        `;
+        </div>
+    `;
         container.appendChild(newScript);
     }
+    // 切换展开/收起按钮的图标
+    document.addEventListener('shown.bs.collapse', function (event) {
+        var targetId = event.target.id;
+        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.remove('fa-chevron-down');
+        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.add('fa-chevron-up');
+    });
+
+    document.addEventListener('hidden.bs.collapse', function (event) {
+        var targetId = event.target.id;
+        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.remove('fa-chevron-up');
+        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.add('fa-chevron-down');
+    });
 
     // 删除某个话术稿
     function removeScript(button) {
         button.parentElement.remove();
     }
 </script>
+
 </body>
 </html>
