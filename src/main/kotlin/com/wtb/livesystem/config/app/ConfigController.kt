@@ -30,25 +30,25 @@ class ConfigController(
         return "apps/config"
     }
 
-    // 保存口头禅和直播话术稿
     @PostMapping("/save")
     fun saveConfig(
         @PathVariable appId: Long,
-        @RequestParam catchphrases: String,
-        @RequestParam scripts: String,
+        @RequestParam catchphrases: List<String>, // 直接接收列表
+        @RequestParam scripts: String, // 仍然用字符串
         principal: Principal,
         redirectAttributes: RedirectAttributes
     ): String {
         val app = appService.findById(appId)
         app.initializeLiveConfig()
         app.liveConfig?.let {
-            it.catchphrases = catchphrases.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+            it.catchphrases = catchphrases.map { it.trim() }.filter { it.isNotEmpty() }.toMutableList() // 过滤空值
             it.scripts = scripts.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
             appService.save(app)
         }
         redirectAttributes.addFlashAttribute("success", "配置已保存")
         return "redirect:/apps/$appId/configs"
     }
+
 
     @GetMapping("/download_sample_json")
     fun downloadExampleJson(): ResponseEntity<Resource> {

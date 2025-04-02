@@ -33,34 +33,31 @@
         </div>
     </div>
     <form th:action="@{/apps/{id}/configs/save(id=${app.id})}" method="post">
-        <div class="row">
-            <!-- 口头禅 -->
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label"><strong>口头禅</strong></label>
-                    <textarea class="form-control" name="catchphrases" rows="5" th:text="${#strings.listJoin(liveConfig.catchphrases, '\n')}"></textarea>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label"><strong>口头禅</strong></label>
+                <div id="catchphrase-container">
+                    <!-- 遍历每个口头禅，让它单独成一行 -->
+                    <th:block th:each="phrase, iterStat : ${liveConfig.catchphrases}">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control catchphrase-input" name="catchphrases" th:value="${phrase}">
+                            <button type="button" class="btn btn-danger" onclick="removeCatchphrase(this)">删除</button>
+                        </div>
+                    </th:block>
                 </div>
-            </div>
-            <!-- 备选口头禅 -->
-            <div class="col-md-6">
-                <label class="form-label"><strong>备选口头禅</strong></label>
-                <div class="catchphrase-list">
-                    <p class="mb-1">🔥 "欢迎来到我的直播间！"</p>
-                    <p class="mb-1">🌟 "别忘了关注哦！"</p>
-                    <p class="mb-1">💖 "喜欢就点个赞吧！"</p>
-                    <p class="mb-1">🎉 "分享给朋友，让更多人看到！"</p>
-                </div>
+                <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addCatchphrase()">添加</button>
             </div>
         </div>
 
         <!-- 直播话术稿 -->
         <div class="mb-3">
             <label class="form-label"><strong>话术稿</strong></label>
-            <textarea class="form-control" name="scripts" rows="8" th:text="${#strings.listJoin( liveConfig.scripts ,'\n') }"></textarea>
+            <textarea class="form-control" name="scripts" rows="8" th:text="${#strings.listJoin(liveConfig.scripts, '\n')}"></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">保存</button>
     </form>
+
 
     <hr>
 
@@ -84,6 +81,23 @@
             toast.show();
         }
     });
+
+    // 添加口头禅
+    function addCatchphrase() {
+        let container = document.getElementById("catchphrase-container");
+        let newInput = document.createElement("div");
+        newInput.classList.add("input-group", "mb-2");
+        newInput.innerHTML = `
+            <input type="text" class="form-control catchphrase-input" name="catchphrases" placeholder="输入新的口头禅">
+            <button type="button" class="btn btn-danger" onclick="removeCatchphrase(this)">删除</button>
+        `;
+        container.appendChild(newInput);
+    }
+
+    // 删除某个口头禅
+    function removeCatchphrase(button) {
+        button.parentElement.remove();
+    }
 </script>
 <script>
     function downloadSelectedJson() {
