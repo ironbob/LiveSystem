@@ -347,6 +347,90 @@
     function removeScript(button) {
         button.parentElement.remove();
     }
+
+    // 保存表单之前进行验证
+    document.querySelector('form').addEventListener('submit', function(event) {
+        let isValid = true;
+        let errorMessages = [];
+
+        // 验证口头禅部分
+        const catchphrases = document.querySelectorAll('input[name="catchphrases"]');
+        catchphrases.forEach(function(input) {
+            if (input.value.trim() === '') {
+                isValid = false;
+                errorMessages.push('口头禅不能为空');
+            }
+        });
+
+        // 验证话术稿部分
+        const scriptNames = document.querySelectorAll('input[name="scriptNames"]');
+        scriptNames.forEach(function(input) {
+            if (input.value.trim() === '') {
+                isValid = false;
+                errorMessages.push('话术稿名称不能为空');
+            }
+        });
+
+        // 验证讲解内容部分
+        const explanations = document.querySelectorAll('textarea[name="explanation"]');
+        explanations.forEach(function(input) {
+            if (input.value.trim() === '') {
+                isValid = false;
+                errorMessages.push('讲解内容不能为空');
+            }
+        });
+
+        // 验证暖场内容部分
+        const warmUpContent = document.querySelectorAll('textarea[name="warmUpContent"]');
+        warmUpContent.forEach(function(input) {
+            if (input.value.trim() === '') {
+                isValid = false;
+                errorMessages.push('暖场内容不能为空');
+            }
+        });
+
+        // 验证触发规则部分
+        const triggers = document.querySelectorAll('textarea[name="triggers"]');
+        triggers.forEach(function(input) {
+            if (input.value.trim() === '') {
+                isValid = false;
+                errorMessages.push('触发规则不能为空');
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault(); // 阻止表单提交
+            showToast(errorMessages.join('，')); // 显示错误消息
+        }
+    });
+
+    // 显示 Toast 提示
+    function showToast(message) {
+        const toastContainer = document.createElement('div');
+        toastContainer.classList.add('position-fixed', 'top-0', 'end-0', 'p-3');
+        toastContainer.style.zIndex = 11;
+
+        const toast = document.createElement('div');
+        toast.classList.add('toast', 'align-items-center', 'text-bg-danger', 'border-0');
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+
+        const toastBody = document.createElement('div');
+        toastBody.classList.add('d-flex');
+        toastBody.innerHTML = `
+        <div class="toast-body">${message}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    `;
+
+        toast.appendChild(toastBody);
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
+
+        const toastInstance = new bootstrap.Toast(toast);
+        toastInstance.show();
+    }
+
 </script>
 
 </body>
