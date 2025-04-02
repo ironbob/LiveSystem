@@ -38,7 +38,7 @@ class ConfigController(
     @PostMapping("/save")
     fun saveConfig(
         @PathVariable appId: Long,
-        @RequestParam catchphrases: String,
+        @RequestParam catchphrases: List<String>,
         @RequestParam scriptNames: List<String>,
         @RequestParam explanation: List<String>,
         @RequestParam warmUpContent: List<String>,
@@ -49,7 +49,7 @@ class ConfigController(
         val app = appService.findById(appId)
         app.initializeLiveConfig()
         app.liveConfig?.let {
-            it.catchphrases = catchphrases.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+            it.catchphrases = catchphrases.map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
 
             // Update scripts with new data
             it.scripts = scriptNames.mapIndexed { index, name ->
