@@ -50,10 +50,22 @@
             </div>
         </div>
 
-        <!-- 直播话术稿 -->
-        <div class="mb-3">
-            <label class="form-label"><strong>话术稿</strong></label>
-            <textarea class="form-control" name="scripts" rows="8" th:text="${#strings.listJoin(liveConfig.scripts, '\n')}"></textarea>
+        <div class="col-md-12">
+            <div class="mb-3">
+                <label class="form-label"><strong>话术稿</strong></label>
+                <div id="script-container">
+                    <th:block th:each="script : ${liveConfig.scripts}">
+                        <div class="script-item">
+                            <input type="text" class="form-control" name="scriptNames" placeholder="话术稿名称" th:value="${script.name}">
+                            <textarea class="form-control" name="explanation" placeholder="讲解内容" rows="3" th:text="${script.explanation}"></textarea>
+                            <textarea class="form-control" name="warmUpContent" placeholder="暖场内容" rows="3" th:text="${script.warmUpContent}"></textarea>
+                            <textarea class="form-control" name="triggers" placeholder="触发规则，逗号分隔" rows="3" th:text="${#strings.listJoin(script.triggers, ',')}"></textarea>
+                            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
+                        </div>
+                    </th:block>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addScript()">添加话术稿</button>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary">保存</button>
@@ -118,6 +130,24 @@
 
     // 删除某个口头禅
     function removeCatchphrase(button) {
+        button.parentElement.remove();
+    }
+
+    function addScript() {
+        let container = document.getElementById("script-container");
+        let newScript = document.createElement("div");
+        newScript.classList.add("script-item");
+        newScript.innerHTML = `
+            <input type="text" class="form-control" name="scriptNames" placeholder="话术稿名称">
+            <textarea class="form-control" name="explanation" placeholder="讲解内容" rows="3"></textarea>
+            <textarea class="form-control" name="warmUpContent" placeholder="暖场内容" rows="3"></textarea>
+            <textarea class="form-control" name="triggers" placeholder="触发规则，逗号分隔" rows="3"></textarea>
+            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
+        `;
+        container.appendChild(newScript);
+    }
+
+    function removeScript(button) {
         button.parentElement.remove();
     }
 </script>

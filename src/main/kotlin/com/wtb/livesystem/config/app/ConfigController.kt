@@ -38,16 +38,29 @@ class ConfigController(
     @PostMapping("/save")
     fun saveConfig(
         @PathVariable appId: Long,
-        @RequestParam catchphrases: List<String>, // 直接接收列表
-        @RequestParam scripts: String, // 仍然用字符串
+        @RequestParam catchphrases: String,
+        @RequestParam scriptNames: List<String>,
+        @RequestParam explanation: List<String>,
+        @RequestParam warmUpContent: List<String>,
+        @RequestParam triggers: List<String>,
         principal: Principal,
         redirectAttributes: RedirectAttributes
     ): String {
         val app = appService.findById(appId)
         app.initializeLiveConfig()
         app.liveConfig?.let {
-            it.catchphrases = catchphrases.map { it.trim() }.filter { it.isNotEmpty() }.toMutableList() // 过滤空值
-            it.scripts = scripts.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+            it.catchphrases = catchphrases.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+
+            // Update scripts with new data
+            it.scripts = scriptNames.mapIndexed { index, name ->
+                Script(
+                    name = name,
+                    explanation = explanation.getOrElse(index) { "" },
+                    warmUpContent = warmUpContent.getOrElse(index) { "" },
+                    triggers = triggers.getOrElse(index) { "" }.split(",").map { it.trim() }.toMutableList()
+                )
+            }.toMutableList()
+
             appService.save(app)
         }
         redirectAttributes.addFlashAttribute("success", "配置已保存")

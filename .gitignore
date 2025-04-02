@@ -40,3 +40,4 @@ out/
 .kotlin
 data/mydb.mv.db
 data/mydb.trace.db
+data/mydb.mv.db
