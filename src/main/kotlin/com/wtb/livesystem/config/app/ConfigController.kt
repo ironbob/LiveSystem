@@ -1,4 +1,5 @@
 package com.wtb.livesystem.config.app
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -6,6 +7,11 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.nio.charset.StandardCharsets
 import java.security.Principal
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import java.io.IOException
 
 @Controller
 @RequestMapping("/apps/{appId}/configs")
@@ -42,6 +48,24 @@ class ConfigController(
         }
         redirectAttributes.addFlashAttribute("success", "配置已保存")
         return "redirect:/apps/$appId/configs"
+    }
+
+    @GetMapping("/download_sample_json")
+    fun downloadExampleJson(): ResponseEntity<Resource> {
+        return try {
+            val resource = ClassPathResource("static/streamer/reader.json")
+            if (!resource.exists()) {
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
+            } else {
+                val headers = HttpHeaders()
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"reader.json\"")
+                ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource)
+            }
+        } catch (e: IOException) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+        }
     }
 
     // 上传 JSON 配置文件
