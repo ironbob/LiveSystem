@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -31,7 +32,7 @@ class SecurityConfig(
     private val userDetailsService: UserDetailsServiceImpl,
     private val passwordEncoder: PasswordEncoder,
 ) {
-
+    val logger = LoggerFactory.getLogger(SecurityConfig::class.java)
     @Bean
     fun loginRequestLoggingFilter(): LoginRequestLoggingFilter {
         return LoginRequestLoggingFilter()
@@ -65,10 +66,10 @@ class SecurityConfig(
                 form
                     .loginPage("/login")
                     .loginProcessingUrl("/login").successHandler { request, response, authentication ->
-                        println("登录成功---------------")
+                        logger.info("登录成功---------------")
                         response.sendRedirect("/apps")
                     }.failureHandler{request, response, authentication ->
-                        println("登录失败---------------")
+                        logger.info("登录失败---------------")
 //                        response.sendRedirect("/apps")
                     }
                     .defaultSuccessUrl("/apps", true)
@@ -115,7 +116,7 @@ class LoginRequestLoggingFilter : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         // 仅处理 POST 请求，以防其他请求也进入此过滤器
         if (request.method == "POST" && request.requestURI == "/login") {
-            println("提交的表单数据: ${request.parameterMap.toString()}")
+            logger.info("提交的表单数据: ${request.parameterMap.toString()}")
         }
         filterChain.doFilter(request, response)
     }

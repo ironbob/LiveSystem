@@ -6,6 +6,7 @@ import com.wtb.livesystem.config.auth.RegisterRequest
 import com.wtb.livesystem.config.auth.UpdateUserRequest
 import com.wtb.livesystem.config.auth.UserResponse
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.context.SecurityContextHolder
@@ -19,17 +20,18 @@ class UserController(
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder
 ) {
+    val logger = LoggerFactory.getLogger(UserController::class.java)
     @PostMapping("/register")
     fun registerUser(
         @RequestParam username: String,
         @RequestParam password: String,
         model: Model
     ): String {
-        println("用户注册请求--------------->: $username")
+        logger.info("用户注册请求--------------->: $username")
 
         // 检查用户名是否可用
         if (!userService.isUsernameAvailable(username)) {
-            println("用户名不可用: $username")
+            logger.info("用户名不可用: $username")
             model.addAttribute("error", "用户名已被占用，请选择其他用户名")
             return "register"  // 重新加载 register.html 并显示错误提示
         }
@@ -40,9 +42,9 @@ class UserController(
                 username = username,
                 rawPassword = password
             )
-            println("用户注册成功: $user")
+            logger.info("用户注册成功: $user")
         } catch (e: Exception) {
-            println("注册失败: ${e.message}")
+            logger.info("注册失败: ${e.message}")
             model.addAttribute("error", "注册失败，请稍后重试")
             return "register"
         }

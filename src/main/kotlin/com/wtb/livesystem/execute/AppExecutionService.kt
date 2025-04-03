@@ -1,10 +1,12 @@
 package com.wtb.livesystem.execute
 
+import com.wtb.livesystem.config.app.AppRepository
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.jvm.optionals.getOrNull
 
 @Service
-class AppExecutionService {
+class AppExecutionService(val appRepository: AppRepository) {
 
     private val runningApps: MutableMap<Long, AppInstance> = ConcurrentHashMap()
 
@@ -20,10 +22,13 @@ class AppExecutionService {
         if (runningApps.containsKey(appId)) {
             return false // 应用已经在运行
         }
-        val appInstance = AppInstance(appId)
-        runningApps[appId] = appInstance
-        appInstance.start()
-        return true
+         appRepository.findById(appId).getOrNull()?.let {
+            val appInstance = AppInstance(it)
+            runningApps[appId] = appInstance
+            appInstance.start()
+            return true;
+        }
+        return false
     }
 
     fun stopApp(appId: Long): Boolean {

@@ -30,6 +30,11 @@ class ExecutorController(private val appExecutionService: AppExecutionService) {
         }
         return "redirect:/apps"
     }
+
+    @GetMapping("/running/{appId}/running")
+    fun showAppState(@PathVariable appId: Long, redirectAttributes: RedirectAttributes): String {
+        return "redirect:/apps/running"
+    }
 }
 
 

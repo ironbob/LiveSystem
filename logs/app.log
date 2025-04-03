@@ -1,0 +1,52 @@
+2025-04-03 12:49:36 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-04-03 12:49:36 [restartedMain] INFO  c.w.l.LiveSystemApplicationKt - Starting LiveSystemApplicationKt using Java 17.0.14 with PID 31133 (/Users/wtb/IdeaProjects/LiveSystem/build/classes/kotlin/main started by wtb in /Users/wtb/IdeaProjects/LiveSystem)
+2025-04-03 12:49:36 [restartedMain] DEBUG c.w.l.LiveSystemApplicationKt - Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-04-03 12:49:36 [restartedMain] INFO  c.w.l.LiveSystemApplicationKt - No active profile set, falling back to 1 default profile: "default"
+2025-04-03 12:49:36 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-04-03 12:49:36 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-04-03 12:49:37 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-03 12:49:37 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 19 ms. Found 3 JPA repository interfaces.
+2025-04-03 12:49:37 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-04-03 12:49:37 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-04-03 12:49:37 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-04-03 12:49:37 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-04-03 12:49:37 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-04-03 12:49:37 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 509 ms
+2025-04-03 12:49:37 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-04-03 12:49:37 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/mydb user=SA
+2025-04-03 12:49:37 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-04-03 12:49:37 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-03 12:49:37 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.11.Final
+2025-04-03 12:49:37 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-04-03 12:49:37 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-03 12:49:37 [restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-04-03 12:49:38 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-03 12:49:38 [restartedMain] DEBUG c.w.l.c.a.LoginRequestLoggingFilter - Filter 'loginRequestLoggingFilter' configured for use
+2025-04-03 12:49:38 [restartedMain] DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-04-03 12:49:38 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2025-04-03 12:49:38 [restartedMain] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page template: index
+2025-04-03 12:49:38 [restartedMain] DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, LoginRequestLoggingFilter, UsernamePasswordAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-04-03 12:49:38 [restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore Deferred [Mvc [pattern='/h2-console/**'], Ant [pattern='/h2-console/**']]. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+2025-04-03 12:49:38 [restartedMain] DEBUG o.s.s.web.DefaultSecurityFilterChain - Will not secure Deferred [Mvc [pattern='/h2-console/**'], Ant [pattern='/h2-console/**']]
+2025-04-03 12:49:38 [restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore Deferred [Mvc [pattern='/webjars/**'], Ant [pattern='/webjars/**']]. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+2025-04-03 12:49:38 [restartedMain] DEBUG o.s.s.web.DefaultSecurityFilterChain - Will not secure Deferred [Mvc [pattern='/webjars/**'], Ant [pattern='/webjars/**']]
+2025-04-03 12:49:38 [restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore Deferred [Mvc [pattern='/css/**'], Ant [pattern='/css/**']]. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+2025-04-03 12:49:38 [restartedMain] DEBUG o.s.s.web.DefaultSecurityFilterChain - Will not secure Deferred [Mvc [pattern='/css/**'], Ant [pattern='/css/**']]
+2025-04-03 12:49:38 [restartedMain] WARN  o.s.s.c.a.web.builders.WebSecurity - You are asking Spring Security to ignore Deferred [Mvc [pattern='/js/**'], Ant [pattern='/js/**']]. This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.
+2025-04-03 12:49:38 [restartedMain] DEBUG o.s.s.web.DefaultSecurityFilterChain - Will not secure Deferred [Mvc [pattern='/js/**'], Ant [pattern='/js/**']]
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/mydb'
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-04-03 12:49:38 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-04-03 12:49:38 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-04-03 12:49:38 [restartedMain] INFO  c.w.l.LiveSystemApplicationKt - Started LiveSystemApplicationKt in 2.007 seconds (process running for 2.205)

@@ -43,6 +43,7 @@ dependencies {
     implementation("org.kie:kie-ci:7.73.0.Final")
     implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation("com.google.code.gson:gson:2.8.8")
+
 }
 
 kotlin {
