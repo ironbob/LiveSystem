@@ -83,8 +83,9 @@
                 <a th:href="@{/apps/{id}/configs(id=${app.id})}" class="btn btn-sm btn-info">管理配置</a>
 
                 <!-- 运行状态按钮 -->
-                <a th:if="${runningApps.containsKey(app.id)}" th:href="@{/apps/{id}/running(id=${app.id})}" class="btn btn-sm btn-warning">查看运行状态</a>
-
+                <form th:if="${runningApps.containsKey(app.id)}" th:action="@{/running/{id}/state(id=${app.id})}" method="get" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-success">运行状态</button>
+                </form>
                 <!-- 启动按钮 -->
                 <form th:if="${!runningApps.containsKey(app.id)}" th:action="@{/executor/start/{id}(id=${app.id})}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-sm btn-success">启动</button>

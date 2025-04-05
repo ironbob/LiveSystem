@@ -14,6 +14,10 @@ class AppExecutionService(val appRepository: AppRepository) {
         return runningApps.values.toList()
     }
 
+    fun queryById(id:Long):AppInstance?{
+        return runningApps.get(id)
+    }
+
     fun queryRunningAppMap(): Map<Long, AppInstance> {
         return runningApps
     }
