@@ -1,7 +1,9 @@
 package com.wtb.livesystem.config.app
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.wtb.livesystem.config.app.model.App
 import jakarta.persistence.*
+import com.fasterxml.jackson.annotation.JsonProperty
 
 
 @Entity
@@ -15,8 +17,8 @@ data class LiveConfig(
     @JoinColumn(name = "app_id", nullable = false)
     val app: App,
 
-    @Column(columnDefinition = "TEXT")
-    var playbackRhythmJson: String = "{}", // 播放节奏配置 (JSON)
+    @Column(name = "playback_rhythm_path", length = 512) // 存储文件路径
+    var playbackRhythmPath: String? = null, // 文件路径（如 "uploads/configs/123.json"）
 
     @ElementCollection
     @CollectionTable(name = "live_catchphrases", joinColumns = [JoinColumn(name = "live_config_id")])
@@ -26,7 +28,18 @@ data class LiveConfig(
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "live_config_id")
     var scripts: MutableList<Script> = mutableListOf() // 直播话术稿列表
-)
+){
+    @Transient
+    var rhythmConfig:RhythmConfig? = null
+}
+data class RhythmConfig @JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("type") val type: String,
+    @JsonProperty("baseParameter") val baseParameter: BaseParameter,
+    @JsonProperty("emotions") val emotions: List<Emotion>
+){
+
+}
 
 @Entity
 @Table(name = "scripts")
@@ -48,4 +61,37 @@ data class Script(
     @CollectionTable(name = "script_triggers", joinColumns = [JoinColumn(name = "script_id")])
     @Column(name = "trigger")
     var triggers: MutableList<String> = mutableListOf() // 触发规则列表
+)
+
+data class DurationRange  @JsonCreator constructor(
+    @JsonProperty("start") val start: Int,
+    @JsonProperty("end") val end: Int
+)
+
+data class BaseParameter @JsonCreator constructor(
+    @JsonProperty("speedRate") val speedRate: Double,
+    @JsonProperty("volume") val volume: Double,
+    @JsonProperty("breakProbability") val breakProbability: Double,
+    @JsonProperty("breakDurationRange") val breakDurationRange: DurationRange,
+    @JsonProperty("breathProbability") val breathProbability: Double,
+    @JsonProperty("breathDurationRange") val breathDurationRange: DurationRange,
+    @JsonProperty("fillWordsProbability") val fillWordsProbability: Double,
+    @JsonProperty("speechErrorProbability") val speechErrorProbability: Double
+)
+
+// Apply the same pattern to Emotion and Bias classes
+data class Emotion @JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("bias") val bias: Bias
+)
+
+data class Bias @JsonCreator constructor(
+    @JsonProperty("speedRateBias") val speedRateBias: Double,
+    @JsonProperty("volumeBias") val volumeBias: Double,
+    @JsonProperty("breakProbabilityBias") val breakProbabilityBias: Double,
+    @JsonProperty("breakDurationRangeBias") val breakDurationRangeBias: DurationRange,
+    @JsonProperty("breathProbabilityBias") val breathProbabilityBias: Double,
+    @JsonProperty("breathDurationRangeBias") val breathDurationRangeBias: DurationRange,
+    @JsonProperty("fillWordsProbabilityBias") val fillWordsProbabilityBias: Double,
+    @JsonProperty("speechErrorProbabilityBias") val speechErrorProbabilityBias: Double
 )

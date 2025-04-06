@@ -183,17 +183,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <!-- 播放节奏 JSON 上传部分 -->
-                <div class="form-section small-upload">
-                    <div class="section-title">上传播放节奏 JSON</div>
-                    <div class="section-content">
-                        <input type="file" class="form-control mb-2" name="file" accept=".json">
-                        <button type="submit" class="btn btn-success btn-sm">上传</button>
-                        <a th:href="@{/apps/{id}/configs/download_sample_json(id=${app.id})}" class="btn btn-secondary btn-sm ms-2" download>下载示例 JSON</a>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <!-- 分隔线 -->
@@ -234,7 +224,21 @@
         <!-- 保存按钮 -->
         <button type="submit" class="btn btn-primary save-btn">保存</button>
     </form>
+    <form th:action="@{/apps/{id}/configs/upload-json(id=${app.id})}"
+          method="post"
+          enctype="multipart/form-data"
+          class="mb-3">
 
+        <div class="form-section small-upload">
+            <div class="section-title">上传播放节奏 JSON</div>
+            <div class="section-content">
+                <input type="file" class="form-control mb-2" name="file" accept=".json" required>
+                <button type="submit" class="btn btn-success btn-sm">上传</button>
+                <a th:href="@{/apps/{id}/configs/download_sample_json(id=${app.id})}"
+                   class="btn btn-secondary btn-sm ms-2" download>下载示例 JSON</a>
+            </div>
+        </div>
+    </form>
     <hr>
 
 </div>

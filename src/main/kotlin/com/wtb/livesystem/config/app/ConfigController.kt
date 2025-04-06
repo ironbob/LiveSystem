@@ -1,4 +1,6 @@
 package com.wtb.livesystem.config.app
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -13,11 +15,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import java.io.File
 import java.io.IOException
+import java.nio.file.Paths
 
 @Controller
 @RequestMapping("/apps/{appId}/configs")
 class ConfigController(
-    private val appService: AppService
+    private val appService: AppService,
+    private val fileStorageService: FileStorageService
 ) {
 
     @GetMapping
@@ -85,7 +89,6 @@ class ConfigController(
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
         }
     }
-
     // 上传 JSON 配置文件
     @PostMapping("/upload-json")
     fun uploadJsonConfig(
@@ -95,14 +98,16 @@ class ConfigController(
         redirectAttributes: RedirectAttributes
     ): String {
         val app = appService.findById(appId)
-        val jsonContent = file.bytes.toString(StandardCharsets.UTF_8)
-        app.liveConfig?.playbackRhythmJson = jsonContent
+        var storePath = fileStorageService.storeFile(file)
+        app.liveConfig?.rhythmConfig = loadFileContent(storePath)
         appService.save(app)
 
         redirectAttributes.addFlashAttribute("success", "JSON 配置上传成功")
         return "redirect:/apps/$appId/configs"
     }
-
+    fun loadFileContent(path: String): RhythmConfig {
+        return ObjectMapper().readValue(Paths.get(path).toFile(), RhythmConfig::class.java)
+    }
     // 验证用户是否有权限访问
     private fun validateOwnership(appId: Long, username: String) {
         if (!appService.validateUserOwnership(appId, username)) {

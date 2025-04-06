@@ -27,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation ("org.webjars:webjars-locator:0.40")
     // 密码加密工具（Spring Security自带）
     implementation("org.springframework.security:spring-security-crypto")
