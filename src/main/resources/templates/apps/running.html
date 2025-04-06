@@ -24,7 +24,55 @@
     </tr>
   </table>
 
-  <a href="/apps" class="btn btn-primary">返回应用列表</a>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script th:inline="javascript">
+  // var appId = "[[${appInstance.getApp().id}]]"
+  const appId = "1"; // 应用ID，根据当前展示的 App 替换
+
+  // Log: WebSocket 连接开始
+  console.log(`Connecting to WebSocket for appId: ${appId}`);
+
+  // 创建 WebSocket 连接
+  const socket = new WebSocket(`ws://127.0.0.1:8080/ws/runtime?appId=${appId}`);
+
+  // Log: 连接打开时
+  socket.onopen = function(event) {
+    console.log(`WebSocket connection established for appId: ${appId}`);
+  };
+
+  // Log: WebSocket 连接关闭时
+  socket.onclose = function(event) {
+    console.log(`WebSocket connection closed for appId: ${appId}`);
+    if (event.wasClean) {
+      console.log("Connection closed cleanly");
+    } else {
+      console.error("Connection closed with errors");
+    }
+  };
+
+  // Log: WebSocket 连接错误时
+  socket.onerror = function(event) {
+    console.error(`WebSocket error occurred for appId: ${appId}`, event);
+  };
+
+  // 接收到消息时
+  socket.onmessage = function(event) {
+    console.log(`Received message for appId: ${appId}: ${event.data}`);
+    // 更新页面上的运行时长
+    $("#runningDuration").text(event.data); // 更新元素内容
+  };
+
+  // Log: WebSocket 连接正在发送数据
+  function sendMessage(message) {
+    console.log(`Sending message to WebSocket: ${message}`);
+    socket.send(message);
+  }
+
+  // Example of sending a message
+  // sendMessage("Ping from client");
+</script>
+
 </body>
 </html>

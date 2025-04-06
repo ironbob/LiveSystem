@@ -41,3 +41,6 @@ out/
 data/mydb.mv.db
 data/mydb.trace.db
 data/mydb.mv.db
+logs/app.2025-04-03.log
+logs/app.2025-04-04.log
+*.log

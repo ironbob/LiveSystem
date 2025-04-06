@@ -20,8 +20,8 @@ val logger = LoggerFactory.getLogger("RunningController")
     @GetMapping("{appId}/state")
     fun getNextSpeech(@PathVariable appId: Long,
                       model: Model): String {
-         val instance = appExecutionService.queryById(appId)
-        logger.info("instance : $instance")
+         val instance = appExecutionService.queryById(appId) ?: return "redirect:/apps"
+         logger.info("instance : $instance")
         model.addAttribute("appInstance", instance)
         return "apps/running";
     }

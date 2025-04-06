@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping
 class MainController {
 
     @GetMapping("/")
-    fun index(): String {
-        return "forward:/index.html"
+    fun homeRedirect(): String {
+        return "redirect:/apps"
     }
 }

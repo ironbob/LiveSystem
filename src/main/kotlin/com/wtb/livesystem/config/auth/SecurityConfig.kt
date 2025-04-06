@@ -43,6 +43,7 @@ class SecurityConfig(
         return WebSecurityCustomizer { web ->
             web.ignoring().requestMatchers(
                 "/h2-console/**",
+                "/ws/**",
                 "/webjars/**",
                 "/css/**",
                 "/js/**"
@@ -57,6 +58,7 @@ class SecurityConfig(
             .csrf { csrf -> csrf.disable() }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/register/**").permitAll()
+                    .requestMatchers("/ws/**","/ws/*/**").permitAll()
                     .requestMatchers("/index").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/users").hasRole("ADMIN")
