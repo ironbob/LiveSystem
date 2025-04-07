@@ -1,7 +1,6 @@
 package com.wtb.livesystem.config.app.model
 
-import com.wtb.livesystem.config.app.LiveConfig
-import com.wtb.livesystem.streamer.config.app.StreamerConfig
+import com.wtb.livesystem.core.LiveConfig
 import jakarta.persistence.*
 import java.time.Instant
 

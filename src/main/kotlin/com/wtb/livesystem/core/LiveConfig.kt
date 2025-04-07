@@ -1,4 +1,4 @@
-package com.wtb.livesystem.config.app
+package com.wtb.livesystem.core
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.wtb.livesystem.config.app.model.App
@@ -30,7 +30,7 @@ data class LiveConfig(
     var scripts: MutableList<Script> = mutableListOf() // 直播话术稿列表
 ){
     @Transient
-    var rhythmConfig:RhythmConfig? = null
+    var rhythmConfig: RhythmConfig? = null
 }
 data class RhythmConfig @JsonCreator constructor(
     @JsonProperty("name") val name: String,
