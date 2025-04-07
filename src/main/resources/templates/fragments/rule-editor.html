@@ -1,0 +1,59 @@
+<!-- templates/fragments/rule-editor.html -->
+<div th:fragment="ruleEditor(prefix)">
+    <div class="mb-3 rule-container" th:attr="data-prefix=${prefix}">
+        <!-- 初始规则项 -->
+        <div class="d-flex align-items-center gap-2 mb-2 rule-row">
+            <select class="form-select" th:name="${prefix + 'Rules'}" style="width: 180px;">
+                <option value="onlineUserCount">直播间人数</option>
+                <option value="liveDuration">直播时长</option>
+            </select>
+
+            <select class="form-select" th:name="${prefix + 'Operators'}" style="width: 120px;">
+                <option value=">">大于</option>
+                <option value="<">小于</option>
+                <option value="=">等于</option>
+                <option value="between">在区间</option>
+            </select>
+
+            <input type="text" class="form-control" th:name="${prefix + 'Values'}" placeholder="值或范围，例如 5 或 10,20" style="width: 200px;">
+
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeRule(this)">删除</button>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-sm" onclick="addRule(this)">添加规则</button>
+
+    <!-- 脚本区域 -->
+    <script>
+        function addRule(button) {
+            const container = button.previousElementSibling; // 找到最近的 rule-container
+            const rulePrefix = container.dataset.prefix;
+
+            const newRow = document.createElement("div");
+            newRow.className = "d-flex align-items-center gap-2 mb-2 rule-row";
+
+            newRow.innerHTML = `
+                <select class="form-select" name="${rulePrefix}Rules" style="width: 180px;">
+                    <option value="onlineUserCount">直播间人数</option>
+                    <option value="liveDuration">直播时长</option>
+                </select>
+
+                <select class="form-select" name="${rulePrefix}Operators" style="width: 120px;">
+                    <option value=">">大于</option>
+                    <option value="<">小于</option>
+                    <option value="=">等于</option>
+                    <option value="between">在区间</option>
+                </select>
+
+                <input type="text" class="form-control" name="${rulePrefix}Values" placeholder="值或范围，例如 5 或 10,20" style="width: 200px;">
+
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRule(this)">删除</button>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeRule(button) {
+            button.closest(".rule-row").remove();
+        }
+    </script>
+</div>
