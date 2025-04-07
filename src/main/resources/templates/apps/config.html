@@ -212,8 +212,9 @@
                             <div class="form-label">暖场内容</div>
                             <textarea class="form-control" name="warmUpContent" rows="4" th:text="${script.warmUpContent}"></textarea>
                             <div class="form-label">触发规则</div>
-                            <textarea class="form-control" name="triggers" rows="4" th:text="${#strings.listJoin(script.triggers, ',')}"></textarea>
-                            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
+                            <div th:replace="fragments/rule-editor :: ruleEditor('draft')"></div>
+
+                            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除稿子</button>
                         </div>
                     </div>
                 </th:block>
@@ -328,8 +329,8 @@
             <div class="form-label">暖场内容</div>
             <textarea class="form-control" name="warmUpContent" rows="4"></textarea>
             <div class="form-label">触发规则</div>
-            <textarea class="form-control" name="triggers" rows="4"></textarea>
-            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除</button>
+            <div th:replace="fragments/rule-editor :: ruleEditor('draft')"></div>
+            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除稿子</button>
         </div>
     `;
         container.appendChild(newScript);

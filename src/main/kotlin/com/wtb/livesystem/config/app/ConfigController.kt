@@ -1,19 +1,18 @@
 package com.wtb.livesystem.config.app
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.beans.factory.annotation.Autowired
+import com.wtb.livesystem.core.RhythmConfig
+import com.wtb.livesystem.core.Script
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import java.nio.charset.StandardCharsets
 import java.security.Principal
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
 
@@ -46,7 +45,9 @@ class ConfigController(
         @RequestParam scriptNames: List<String>,
         @RequestParam explanation: List<String>,
         @RequestParam warmUpContent: List<String>,
-        @RequestParam triggers: List<String>,
+        @RequestParam("draftRules") rules: List<String>,
+        @RequestParam("draftOperators") operators: List<String>,
+        @RequestParam("draftValues") values: List<String>,
         principal: Principal,
         redirectAttributes: RedirectAttributes
     ): String {
@@ -61,7 +62,8 @@ class ConfigController(
                     name = name,
                     explanation = explanation.getOrElse(index) { "" },
                     warmUpContent = warmUpContent.getOrElse(index) { "" },
-                    triggers = triggers.getOrElse(index) { "" }.split(",").map { it.trim() }.toMutableList()
+//                    triggers = triggers.getOrElse(index) { "" }.split(",").map { it.trim() }.toMutableList()
+                            triggers = arrayListOf()
                 )
             }.toMutableList()
 
