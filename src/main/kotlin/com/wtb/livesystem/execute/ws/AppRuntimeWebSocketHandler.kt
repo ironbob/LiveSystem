@@ -57,9 +57,6 @@ class AppRuntimeWebSocketHandler : AbstractWebSocketHandler() {
         val appId = getAppId(session)
         if(appId>=0){
             logger.info("WebSocket session established for appId: $appId")
-            if (session.uri != null) {
-                session.attributes["appId"] = appId
-            }
             super.afterConnectionEstablished(session)
         }
 
