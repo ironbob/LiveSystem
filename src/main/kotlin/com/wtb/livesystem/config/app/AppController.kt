@@ -33,7 +33,22 @@ class AppController(
         return "apps/apps"
     }
 
-
+    @PostMapping
+    fun createApp(
+        @RequestParam name: String,
+        @RequestParam description: String,
+        principal: Principal,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        return try {
+            appService.createApp(name, description, principal.name) // 这里传入用户填写的描述
+            redirectAttributes.addFlashAttribute("success", "App created successfully")
+            "redirect:/apps"
+        } catch (e: Exception) {
+            redirectAttributes.addFlashAttribute("error", "Failed to create app: ${e.message}")
+            "redirect:/apps"
+        }
+    }
        // 显示单个App详情
     @GetMapping("/{appId}")
     fun showApp(

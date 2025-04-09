@@ -1,5 +1,6 @@
 package com.wtb.livesystem.config.app
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.wtb.livesystem.config.app.rule.RuleParser
 import com.wtb.livesystem.core.RhythmConfig
 import com.wtb.livesystem.core.Script
 import org.springframework.core.io.ClassPathResource
@@ -36,7 +37,7 @@ class ConfigController(
         model.addAttribute("liveConfig", app.liveConfig)
         model.addAttribute("exampleCatchphrases", exampleCatchphrases) // 传递示例口头禅列表
         model.addAttribute("liveConfigForm",LiveConfigForm(app.liveConfig?.catchphrases ?: mutableListOf(),app.liveConfig?.scripts?.map {
-            ScriptForm(it.name, it.explanation, it.warmUpContent, it.triggers.joinToString("\n"))
+            ScriptForm(it.name, it.explanation, it.warmUpContent, it.ruleString)
         } ?: mutableListOf()))
         return "apps/config"
     }
@@ -52,20 +53,35 @@ class ConfigController(
     ): String {
         val app = appService.findById(appId)
         app.initializeLiveConfig()
-        app.liveConfig?.let {
-            it.catchphrases = form.catchphrases.toMutableList()
 
-            it.scripts = form.scripts.map { scriptForm ->
+        val scripts = mutableListOf<Script>()
+
+        for (scriptForm in form.scripts) {
+            val error = RuleParser.validate(scriptForm.rules)
+            if (error != null) {
+                redirectAttributes.addFlashAttribute("error", "规则【${scriptForm.name}】不合法: $error")
+                return "redirect:/apps/$appId/configs"
+            }
+
+            val parsedRules = RuleParser.parse(scriptForm.rules)
+                .flatMap { it.rules } // 暂时只展开使用 ruleModel 列表
+
+            scripts.add(
                 Script(
                     name = scriptForm.name,
                     explanation = scriptForm.explanation,
                     warmUpContent = scriptForm.warmUpContent,
-                    triggers = parseRules(scriptForm.rules) // 解析JSON的方法
+                    ruleString = scriptForm.rules // 可换成模型
                 )
-            }.toMutableList()
+            )
+        }
 
+        app.liveConfig?.let {
+            it.catchphrases = form.catchphrases.toMutableList()
+            it.scripts = scripts
             appService.save(app)
         }
+
         redirectAttributes.addFlashAttribute("success", "配置已保存")
         return "redirect:/apps/$appId/configs"
     }
