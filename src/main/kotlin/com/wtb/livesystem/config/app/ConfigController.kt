@@ -24,6 +24,8 @@ class ConfigController(
     private val fileStorageService: FileStorageService
 ) {
 
+
+
     @GetMapping
     fun configPage(@PathVariable appId: Long, model: Model, principal: Principal): String {
         val app = appService.findById(appId)
@@ -49,6 +51,7 @@ class ConfigController(
         @PathVariable appId: Long,
         @ModelAttribute form: LiveConfigForm,
         principal: Principal,
+        model: Model,
         redirectAttributes: RedirectAttributes
     ): String {
         val app = appService.findById(appId)
@@ -59,19 +62,24 @@ class ConfigController(
         for (scriptForm in form.scripts) {
             val error = RuleParser.validate(scriptForm.rules)
             if (error != null) {
-                redirectAttributes.addFlashAttribute("error", "规则【${scriptForm.name}】不合法: $error")
-                return "redirect:/apps/$appId/configs"
+                model.addAttribute("error", "规则【${scriptForm.name}】不合法: $error")
+                model.addAttribute("app", app)
+                val resource = ClassPathResource("static/catchphrases.txt")
+                val exampleCatchphrases = resource.inputStream.bufferedReader().readLines()
+                model.addAttribute("liveConfigForm", form) // 回传用户填写的表单
+                model.addAttribute("exampleCatchphrases", exampleCatchphrases) // 传递示例口头禅列表
+                return "apps/config" // 这里返回你的 Thymeleaf 页面名，如 config.html
             }
 
             val parsedRules = RuleParser.parse(scriptForm.rules)
-                .flatMap { it.rules } // 暂时只展开使用 ruleModel 列表
+                .flatMap { it.rules }
 
             scripts.add(
                 Script(
                     name = scriptForm.name,
                     explanation = scriptForm.explanation,
                     warmUpContent = scriptForm.warmUpContent,
-                    ruleString = scriptForm.rules // 可换成模型
+                    ruleString = scriptForm.rules
                 )
             )
         }
@@ -85,8 +93,6 @@ class ConfigController(
         redirectAttributes.addFlashAttribute("success", "配置已保存")
         return "redirect:/apps/$appId/configs"
     }
-
-
     private fun parseRules(ruleLines: String): MutableList<String> {
         return ruleLines.lines()                      // 按行分割
             .map { it.trim() }                        // 去除前后空格
