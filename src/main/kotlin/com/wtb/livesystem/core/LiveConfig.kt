@@ -61,6 +61,7 @@ data class Script(
     @CollectionTable(name = "script_triggers", joinColumns = [JoinColumn(name = "script_id")])
     @Column(name = "trigger")
     var triggers: MutableList<String> = mutableListOf() // 触发规则列表
+
 )
 
 data class DurationRange  @JsonCreator constructor(

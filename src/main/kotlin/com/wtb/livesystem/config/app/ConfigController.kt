@@ -35,35 +35,32 @@ class ConfigController(
         model.addAttribute("app", app)
         model.addAttribute("liveConfig", app.liveConfig)
         model.addAttribute("exampleCatchphrases", exampleCatchphrases) // 传递示例口头禅列表
+        model.addAttribute("liveConfigForm",LiveConfigForm(app.liveConfig?.catchphrases ?: mutableListOf(),app.liveConfig?.scripts?.map {
+            ScriptForm(it.name, it.explanation, it.warmUpContent, it.triggers.joinToString("\n"))
+        } ?: mutableListOf()))
         return "apps/config"
     }
+
+
 
     @PostMapping("/save")
     fun saveConfig(
         @PathVariable appId: Long,
-        @RequestParam catchphrases: List<String>,
-        @RequestParam scriptNames: List<String>,
-        @RequestParam explanation: List<String>,
-        @RequestParam warmUpContent: List<String>,
-        @RequestParam("draftRules") rules: List<String>,
-        @RequestParam("draftOperators") operators: List<String>,
-        @RequestParam("draftValues") values: List<String>,
+        @ModelAttribute form: LiveConfigForm,
         principal: Principal,
         redirectAttributes: RedirectAttributes
     ): String {
         val app = appService.findById(appId)
         app.initializeLiveConfig()
         app.liveConfig?.let {
-            it.catchphrases = catchphrases.map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+            it.catchphrases = form.catchphrases.toMutableList()
 
-            // Update scripts with new data
-            it.scripts = scriptNames.mapIndexed { index, name ->
+            it.scripts = form.scripts.map { scriptForm ->
                 Script(
-                    name = name,
-                    explanation = explanation.getOrElse(index) { "" },
-                    warmUpContent = warmUpContent.getOrElse(index) { "" },
-//                    triggers = triggers.getOrElse(index) { "" }.split(",").map { it.trim() }.toMutableList()
-                            triggers = arrayListOf()
+                    name = scriptForm.name,
+                    explanation = scriptForm.explanation,
+                    warmUpContent = scriptForm.warmUpContent,
+                    triggers = parseRules(scriptForm.rules) // 解析JSON的方法
                 )
             }.toMutableList()
 
@@ -73,6 +70,25 @@ class ConfigController(
         return "redirect:/apps/$appId/configs"
     }
 
+
+    private fun parseRules(ruleLines: String): MutableList<String> {
+        return ruleLines.lines()                      // 按行分割
+            .map { it.trim() }                        // 去除前后空格
+            .filter { it.isNotEmpty() }               // 过滤空行
+            .toMutableList()                          // 转成 MutableList
+    }
+
+    data class LiveConfigForm(
+        val catchphrases: List<String> = emptyList(),
+        val scripts: List<ScriptForm> = emptyList()
+    )
+
+    data class ScriptForm(
+        val name: String = "",
+        val explanation: String = "",
+        val warmUpContent: String = "",
+        val rules: String = "" // 存储JSON字符串
+    )
 
     @GetMapping("/download_sample_json")
     fun downloadExampleJson(): ResponseEntity<Resource> {

@@ -164,55 +164,62 @@
     </div>
 
     <form th:action="@{/apps/{id}/configs/save(id=${app.id})}" method="post">
-        <!-- 口头禅和 JSON 上传区域 -->
+        <!-- 口头禅部分 -->
         <div class="row">
             <div class="col-md-6">
-                <!-- 口头禅部分 -->
                 <div class="form-section">
                     <div class="section-title">口头禅</div>
                     <div id="catchphrase-container" class="section-content">
-                        <th:block th:each="phrase : ${liveConfig.catchphrases}">
+                        <th:block th:each="phrase, stat : ${liveConfigForm.catchphrases}">
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control catchphrase-input" name="catchphrases" th:value="${phrase}">
+                                <input type="text" class="form-control"
+                                       th:name="'catchphrases[' + ${stat.index} + ']'"
+                                       th:value="${phrase}">
                                 <button type="button" class="btn btn-danger" onclick="removeCatchphrase(this)">删除</button>
                             </div>
                         </th:block>
                     </div>
                     <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addCatchphrase()">添加</button>
-                    <button type="button" class="btn btn-info btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#catchphraseModal">查看示例口头禅</button>
                 </div>
             </div>
-
-
         </div>
 
         <!-- 分隔线 -->
         <div class="divider"></div>
 
+        <!-- 话术稿部分 -->
         <div class="form-section">
             <div class="section-title">话术稿</div>
             <div id="script-container" class="section-content">
-                <th:block th:each="script, iter : ${liveConfig.scripts}">
+                <th:block th:each="script, iter : ${liveConfigForm.scripts}">
                     <div class="script-item mb-3">
-                        <!-- 修改按钮，添加唯一标识 -->
                         <button type="button" class="btn btn-link btn-sm mb-2 float-end script-toggle"
                                 data-bs-toggle="collapse"
                                 th:data-bs-target="'#scriptCollapse-' + ${iter.index}"
-                                th:aria-controls="'scriptCollapse-' + ${iter.index}"
-                                th:onclick="toggleCollapseIcon(${iter.index})">
-                            <i class="fas fa-chevron-down" th:id="'collapseIcon-' + ${iter.index}"></i>
+                                th:aria-controls="'scriptCollapse-' + ${iter.index}">
+                            <i class="fas fa-chevron-down"></i>
                         </button>
 
-                        <!-- 修改折叠区域，使用索引作为唯一标识 -->
                         <div th:id="'scriptCollapse-' + ${iter.index}" class="collapse">
                             <div class="form-label">话术稿名称</div>
-                            <input type="text" class="form-control" name="scriptNames" th:value="${script.name}">
+                            <input type="text" class="form-control"
+                                   th:name="scripts[__${iter.index}__].name"
+                                   th:value="${script.name}">
+
                             <div class="form-label">讲解内容</div>
-                            <textarea class="form-control" name="explanation" rows="4" th:text="${script.explanation}"></textarea>
+                            <textarea class="form-control" rows="4"
+                                      th:name="scripts[__${iter.index}__].explanation"
+                                      th:text="${script.explanation}"></textarea>
+
                             <div class="form-label">暖场内容</div>
-                            <textarea class="form-control" name="warmUpContent" rows="4" th:text="${script.warmUpContent}"></textarea>
-                            <div class="form-label">触发规则</div>
-                            <div th:replace="fragments/rule-editor :: ruleEditor('draft')"></div>
+                            <textarea class="form-control" rows="4"
+                                      th:name="scripts[__${iter.index}__].warmUpContent"
+                                      th:text="${script.warmUpContent}"></textarea>
+
+                            <div class="form-label">触发规则（JSON格式）</div>
+                            <textarea class="form-control" rows="4"
+                                      th:name="scripts[__${iter.index}__].rules"
+                                      th:text="${script.rules}"></textarea>
 
                             <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除稿子</button>
                         </div>
@@ -269,6 +276,40 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+
+    let scriptIndex = document.querySelectorAll('.script-item').length;
+
+    function addScript() {
+        const container = document.getElementById('script-container');
+        const index = scriptIndex++;
+
+        const div = document.createElement('div');
+        div.className = 'script-item mb-3';
+        div.innerHTML = `
+            <button type="button" class="btn btn-link btn-sm mb-2 float-end script-toggle"
+                    data-bs-toggle="collapse" data-bs-target="#scriptCollapse-${index}"
+                    aria-controls="scriptCollapse-${index}">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+
+            <div id="scriptCollapse-${index}" class="collapse show">
+                <div class="form-label">话术稿名称</div>
+                <input type="text" class="form-control" name="scripts[${index}].name">
+
+                <div class="form-label">讲解内容</div>
+                <textarea class="form-control" rows="4" name="scripts[${index}].explanation"></textarea>
+
+                <div class="form-label">暖场内容</div>
+                <textarea class="form-control" rows="4" name="scripts[${index}].warmUpContent"></textarea>
+
+                <div class="form-label">触发规则（JSON格式）</div>
+                <textarea class="form-control" rows="4" name="scripts[${index}].rules">{}</textarea>
+
+                <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除稿子</button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
     // 自动触发 Toast
     document.addEventListener("DOMContentLoaded", function () {
         var successToast = document.getElementById("successToast");
@@ -280,163 +321,67 @@
 
     // 添加口头禅
     function addCatchphrase() {
-        let container = document.getElementById("catchphrase-container");
-        let newInput = document.createElement("div");
-        newInput.classList.add("input-group", "mb-2");
-        newInput.innerHTML = `
-            <input type="text" class="form-control catchphrase-input" name="catchphrases" placeholder="输入新的口头禅">
+        const container = document.getElementById("catchphrase-container");
+        const index = container.children.length;
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" class="form-control" name="catchphrases[${index}]">
             <button type="button" class="btn btn-danger" onclick="removeCatchphrase(this)">删除</button>
         `;
-        container.appendChild(newInput);
+        container.appendChild(div);
     }
 
-    // 删除某个口头禅
-    function removeCatchphrase(button) {
-        button.parentElement.remove();
-    }
-    // 添加新的脚本函数处理图标切换
-    function toggleCollapseIcon(index) {
-        const icon = document.getElementById(`collapseIcon-${index}`);
-        if (icon.classList.contains('fa-chevron-down')) {
-            icon.classList.remove('fa-chevron-down');
-            icon.classList.add('fa-chevron-up');
-        } else {
-            icon.classList.remove('fa-chevron-up');
-            icon.classList.add('fa-chevron-down');
-        }
-    }
-    // 修改addScript函数以正确处理新添加的元素
-    function addScript() {
-        let container = document.getElementById("script-container");
-        let newScript = document.createElement("div");
-        let newIndex = container.children.length; // 获取新索引
 
-        newScript.classList.add("script-item", "mb-3");
-        newScript.innerHTML = `
-        <button type="button" class="btn btn-link btn-sm mb-2 float-end script-toggle"
-                data-bs-toggle="collapse"
-                data-bs-target="#scriptCollapse-${newIndex}"
-                aria-controls="scriptCollapse-${newIndex}"
-                onclick="toggleCollapseIcon(${newIndex})">
-            <i class="fas fa-chevron-down" id="collapseIcon-${newIndex}"></i>
-        </button>
 
-        <div id="scriptCollapse-${newIndex}" class="collapse show">
-            <div class="form-label">话术稿名称</div>
-            <input type="text" class="form-control" name="scriptNames">
-            <div class="form-label">讲解内容</div>
-            <textarea class="form-control" name="explanation" rows="4"></textarea>
-            <div class="form-label">暖场内容</div>
-            <textarea class="form-control" name="warmUpContent" rows="4"></textarea>
-            <div class="form-label">触发规则</div>
-            <div th:replace="fragments/rule-editor :: ruleEditor('draft')"></div>
-            <button type="button" class="btn btn-danger mt-2" onclick="removeScript(this)">删除稿子</button>
-        </div>
-    `;
-        container.appendChild(newScript);
-    }
-    // 切换展开/收起按钮的图标
-    document.addEventListener('shown.bs.collapse', function (event) {
-        var targetId = event.target.id;
-        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.remove('fa-chevron-down');
-        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.add('fa-chevron-up');
-    });
-
-    document.addEventListener('hidden.bs.collapse', function (event) {
-        var targetId = event.target.id;
-        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.remove('fa-chevron-up');
-        document.getElementById('collapseIcon-' + targetId.replace('scriptCollapse-', '')).classList.add('fa-chevron-down');
-    });
-
-    // 删除某个话术稿
-    function removeScript(button) {
-        button.parentElement.remove();
+    // 删除操作保持不变
+    function removeCatchphrase(btn) {
+        btn.closest('.input-group').remove();
     }
 
-    // 保存表单之前进行验证
-    document.querySelector('form').addEventListener('submit', function(event) {
+    function removeScript(btn) {
+        btn.closest('.script-item').remove();
+    }
+
+    // 表单验证需要调整字段名称
+    document.querySelector('form').addEventListener('submit', function(e) {
         let isValid = true;
-        let errorMessages = [];
 
-        // 验证口头禅部分
-        const catchphrases = document.querySelectorAll('input[name="catchphrases"]');
-        catchphrases.forEach(function(input) {
-            if (input.value.trim() === '') {
+        // 验证口头禅
+        const catchphrases = document.querySelectorAll('[name^="catchphrases["]');
+        catchphrases.forEach(input => {
+            if (!input.value.trim()) {
                 isValid = false;
-                errorMessages.push('口头禅不能为空');
+                input.classList.add('is-invalid');
             }
         });
 
-        // 验证话术稿部分
-        const scriptNames = document.querySelectorAll('input[name="scriptNames"]');
-        scriptNames.forEach(function(input) {
-            if (input.value.trim() === '') {
-                isValid = false;
-                errorMessages.push('话术稿名称不能为空');
-            }
-        });
+        // 验证话术稿字段
+        const scripts = document.querySelectorAll('.script-item');
+        scripts.forEach((script, index) => {
+            const name = script.querySelector(`[name="scripts[${index}].name"]`);
+            const explanation = script.querySelector(`[name="scripts[${index}].explanation"]`);
+            const rules = script.querySelector(`[name="scripts[${index}].rules"]`);
 
-        // 验证讲解内容部分
-        const explanations = document.querySelectorAll('textarea[name="explanation"]');
-        explanations.forEach(function(input) {
-            if (input.value.trim() === '') {
+            if (!name.value.trim()) {
                 isValid = false;
-                errorMessages.push('讲解内容不能为空');
+                name.classList.add('is-invalid');
             }
-        });
-
-        // 验证暖场内容部分
-        const warmUpContent = document.querySelectorAll('textarea[name="warmUpContent"]');
-        warmUpContent.forEach(function(input) {
-            if (input.value.trim() === '') {
+            if (!explanation.value.trim()) {
                 isValid = false;
-                errorMessages.push('暖场内容不能为空');
+                explanation.classList.add('is-invalid');
             }
-        });
-
-        // 验证触发规则部分
-        const triggers = document.querySelectorAll('textarea[name="triggers"]');
-        triggers.forEach(function(input) {
-            if (input.value.trim() === '') {
+            if(!rules.value.trim()) {
                 isValid = false;
-                errorMessages.push('触发规则不能为空');
+                rules.classList.add('is-invalid');
             }
         });
 
         if (!isValid) {
-            event.preventDefault(); // 阻止表单提交
-            showToast(errorMessages.join('，')); // 显示错误消息
+            e.preventDefault();
+            alert('请检查表单中的红色标记字段');
         }
     });
-
-    // 显示 Toast 提示
-    function showToast(message) {
-        const toastContainer = document.createElement('div');
-        toastContainer.classList.add('position-fixed', 'top-0', 'end-0', 'p-3');
-        toastContainer.style.zIndex = 11;
-
-        const toast = document.createElement('div');
-        toast.classList.add('toast', 'align-items-center', 'text-bg-danger', 'border-0');
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
-
-        const toastBody = document.createElement('div');
-        toastBody.classList.add('d-flex');
-        toastBody.innerHTML = `
-        <div class="toast-body">${message}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    `;
-
-        toast.appendChild(toastBody);
-        toastContainer.appendChild(toast);
-        document.body.appendChild(toastContainer);
-
-        const toastInstance = new bootstrap.Toast(toast);
-        toastInstance.show();
-    }
-
 </script>
-
 </body>
 </html>
