@@ -1,4 +1,4 @@
-package com.wtb.livesystem.streamer
+package com.wtb.livesystem.core.streamer
 
 import com.google.gson.Gson
 

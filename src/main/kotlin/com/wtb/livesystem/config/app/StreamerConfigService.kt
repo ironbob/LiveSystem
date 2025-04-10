@@ -1,6 +1,6 @@
 package com.wtb.livesystem.config.app
 
-import com.wtb.livesystem.streamer.StreamerDefine.Companion.fromJson
+import com.wtb.livesystem.core.streamer.StreamerDefine.Companion.fromJson
 import com.wtb.livesystem.streamer.config.app.StreamerConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

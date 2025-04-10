@@ -1,8 +1,8 @@
 package com.wtb.livesystem.config.app
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.wtb.livesystem.config.app.rule.RuleParser
 import com.wtb.livesystem.core.RhythmConfig
 import com.wtb.livesystem.core.Script
+import com.wtb.livesystem.core.rule.RuleParser
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -71,9 +71,6 @@ class ConfigController(
                 return "apps/config" // 这里返回你的 Thymeleaf 页面名，如 config.html
             }
 
-            val parsedRules = RuleParser.parse(scriptForm.rules)
-                .flatMap { it.rules }
-
             scripts.add(
                 Script(
                     name = scriptForm.name,
@@ -93,12 +90,7 @@ class ConfigController(
         redirectAttributes.addFlashAttribute("success", "配置已保存")
         return "redirect:/apps/$appId/configs"
     }
-    private fun parseRules(ruleLines: String): MutableList<String> {
-        return ruleLines.lines()                      // 按行分割
-            .map { it.trim() }                        // 去除前后空格
-            .filter { it.isNotEmpty() }               // 过滤空行
-            .toMutableList()                          // 转成 MutableList
-    }
+
 
     data class LiveConfigForm(
         val catchphrases: List<String> = emptyList(),

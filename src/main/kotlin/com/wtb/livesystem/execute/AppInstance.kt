@@ -1,8 +1,11 @@
 package com.wtb.livesystem.execute
 
 import com.wtb.livesystem.config.app.model.App
-import com.wtb.livesystem.config.auth.SecurityConfig
 import com.wtb.livesystem.core.*
+import com.wtb.livesystem.core.rule.RuleEvaluator
+import com.wtb.livesystem.core.rule.RuleFieldName
+import com.wtb.livesystem.core.rule.RuleParser
+import com.wtb.livesystem.core.streamer.LiveStreamer
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.LocalDateTime
@@ -15,49 +18,91 @@ class AppInstance(private val app: App) {
     private var startTime: LocalDateTime? = null
 
     private val roomStatus: RoomStatus = RoomStatus(0, hashSetOf(), arrayListOf())
-    private val streamerState: StreamerState = StreamerState(null, null, 0)
+    private val streamerState: LiveStreamer = LiveStreamer()
 
     private val processedActions = arrayListOf<ProcessAction>()
 
 
-    data class ProcessAction(val replyContent: SpeechReply, val timeStamp: Long, val processEvents: List<LiveEvent>, val actionType:ActionType)
+    data class ProcessAction(
+        val replyContent: SpeechReply,
+        val timeStamp: Long,
+        val processEvents: List<LiveEvent>,
+        val actionType: ActionType
+    )
 
     /**
      * 读稿、暖场、回复
      */
-    enum class ActionType{
-        ReadDraft,Warmup,ReplyAudience
+    enum class ActionType {
+        ReadDraft, Warmup, ReplyAudience
     }
 
-    data class Draft(val sentences: List<String>, var warmups:List<String>, )
+    data class Draft(val sentences: List<String>, var warmups: List<String>)
 
-    class DraftPlayState(var currentDraft:Draft)
+    class DraftPlayState(var currentDraft: Draft)
 
 
     private val eventListLock = Any()
+
     /**
      * 新的用户消息
      */
-    fun onNewLiveEvent(liveEvent: LiveEvent){
+    fun onNewLiveEvent(liveEvent: LiveEvent) {
         synchronized(eventListLock) {
             roomStatus.pendingEvents.add(liveEvent)
         }
     }
 
+
     /**
      * 更新房间状态
      */
-    fun onNewRoomStatus(status: RoomStatusUpdateMessage){
+    fun onNewRoomStatus(status: RoomStatusUpdateMessage) {
         roomStatus.onlineUserCount = status.onlineUserCount;
         roomStatus.activeUserIds = status.activeUserIds
+    }
+
+    private fun getRuleStates(): Map<String, Int> {
+        return hashMapOf(
+            RuleFieldName.FieldCount.value to roomStatus.onlineUserCount,
+            RuleFieldName.FieldLiveDuration.value to getRunningDurationMinutes().toInt()
+        )
+    }
+
+    private fun chooseScriptByRule() {
+        val script = app.liveConfig?.scripts?.first {
+            val rules = RuleParser.parseRules(it.ruleString)
+            rules.all {
+                RuleEvaluator.evaluate(it, getRuleStates())
+            }
+        }
+        if (script != null) {
+            if (streamerState.curScript != script) {
+                streamerState.updateScriptState(script)
+                logger.info("切换稿子")
+            }
+        }
+        if (!streamerState.hasScript()) {
+            streamerState.updateScriptState(app.liveConfig?.scripts?.firstOrNull())
+        }
     }
 
     /**
      *
      */
-    fun fetchNextSpeechReply():SpeechReply?{
+    fun fetchNextSpeechReply(): SpeechReply? {
+        chooseScriptByRule()
+        streamerState.getNextSentence()?.let {
+            return makeNormalSpeechReply(it)
+        }
+        logger.error("没有找到合适的话")
         return null
 
+    }
+
+    private fun makeNormalSpeechReply(content: String): SpeechReply {
+        val msg = ContentReplyMsg(content)
+        return SpeechReply(arrayListOf(msg))
     }
 
     init {
@@ -79,6 +124,12 @@ class AppInstance(private val app: App) {
         val minutes: Int = duration.toMinutesPart()
         val seconds: Int = duration.toSecondsPart()
         return String.format("%d小时 %d分钟 %d秒", hours, minutes, seconds)
+    }
+
+    fun getRunningDurationMinutes(): Long {
+        val duration: Duration = Duration.between(startTime, LocalDateTime.now())
+        val minutes = duration.toMinutes()
+        return minutes
     }
 
     init {

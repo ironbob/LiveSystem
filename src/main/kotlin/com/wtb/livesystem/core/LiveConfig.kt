@@ -57,8 +57,7 @@ data class Script(
     @Column(nullable = false)
     var warmUpContent: String, // 暖场内容
 
-    @CollectionTable(name = "script_triggers", joinColumns = [JoinColumn(name = "script_id")])
-    @Column(name = "trigger")
+    @Column(name = "rules")
     var ruleString: String = "" // 触发规则列表
 
 )

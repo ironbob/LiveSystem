@@ -39,10 +39,6 @@ data class RoomStatus(
 
 
 data class RoomStatusUpdateMessage(val onlineUserCount: Int, val activeUserIds: Set<String>)
-data class StreamerState(
-    val currentEmotion: Emotion?,
-    val currentScript: Script?, // 当前绑定的话术稿（你之前的 Script 类）
-    val lastSpokenAt: Long
-)
+
 
 
