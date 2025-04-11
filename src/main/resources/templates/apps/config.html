@@ -222,10 +222,6 @@
                                       th:name="scripts[__${iter.index}__].explanation"
                                       th:text="${script.explanation}"></textarea>
 
-                            <div class="form-label">暖场内容</div>
-                            <textarea class="form-control" rows="4"
-                                      th:name="scripts[__${iter.index}__].warmUpContent"
-                                      th:text="${script.warmUpContent}"></textarea>
 
                             <div class="form-label">触发规则（JSON格式）</div>
                             <textarea class="form-control" rows="4"
@@ -309,9 +305,6 @@
 
                 <div class="form-label">讲解内容</div>
                 <textarea class="form-control" rows="4" name="scripts[${index}].explanation"></textarea>
-
-                <div class="form-label">暖场内容</div>
-                <textarea class="form-control" rows="4" name="scripts[${index}].warmUpContent"></textarea>
 
                 <div class="form-label">触发规则（JSON格式）</div>
                 <textarea class="form-control" rows="4" name="scripts[${index}].rules">{}</textarea>

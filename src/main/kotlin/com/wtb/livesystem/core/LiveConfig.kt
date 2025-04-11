@@ -54,13 +54,12 @@ data class Script(
     @Column(nullable = false)
     var explanation: String, // 讲解内容
 
-    @Column(nullable = false)
-    var warmUpContent: String, // 暖场内容
-
     @Column(name = "rules")
     var ruleString: String = "" // 触发规则列表
 
 )
+
+
 
 data class DurationRange  @JsonCreator constructor(
     @JsonProperty("start") val start: Int,

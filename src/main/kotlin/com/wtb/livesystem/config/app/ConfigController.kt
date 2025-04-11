@@ -39,7 +39,7 @@ class ConfigController(
         model.addAttribute("liveConfig", app.liveConfig)
         model.addAttribute("exampleCatchphrases", exampleCatchphrases) // 传递示例口头禅列表
         model.addAttribute("liveConfigForm",LiveConfigForm(app.liveConfig?.catchphrases ?: mutableListOf(),app.liveConfig?.scripts?.map {
-            ScriptForm(it.name, it.explanation, it.warmUpContent, it.ruleString)
+            ScriptForm(it.name, it.explanation,  it.ruleString)
         } ?: mutableListOf()))
         return "apps/config"
     }
@@ -75,8 +75,6 @@ class ConfigController(
                 Script(
                     name = scriptForm.name,
                     explanation = scriptForm.explanation,
-                    warmUpContent = scriptForm.warmUpContent,
-                    ruleString = scriptForm.rules
                 )
             )
         }
@@ -100,7 +98,6 @@ class ConfigController(
     data class ScriptForm(
         val name: String = "",
         val explanation: String = "",
-        val warmUpContent: String = "",
         val rules: String = "" // 存储JSON字符串
     )
 
