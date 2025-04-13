@@ -1,5 +1,11 @@
 package com.wtb.livesystem.core
 
+enum class LiveEventType(val t:Int, val eventName:String){
+    UserFollow(1,"关注"),
+    UserEnter(2,"进入直播间"),
+    UserMessage(3,"用户提问"),
+    UserGift(4,"用户送礼物")
+}
 sealed class LiveEvent {
     abstract val timestamp: Long
 
