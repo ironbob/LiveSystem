@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>配置上传</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+<div class="container">
+  <h2>上传配置文件（ZIP）</h2>
+
+  <form th:action="@{'/apps/' + ${app.id} + '/configs/upload'}" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label for="zipFile" class="form-label">选择 zip 文件</label>
+      <input type="file" class="form-control" id="zipFile" name="zipFile" accept=".zip" required>
+    </div>
+    <button type="submit" class="btn btn-primary">上传</button>
+  </form>
+  <!-- 展示已上传的 zip 文件 -->
+  <div th:if="${zipFileName}" class="mt-4">
+    <h5>当前已上传文件：</h5>
+    <p><strong th:text="${zipFileName}">config.zip</strong></p>
+
+    <!-- 显示 zip 内容 -->
+    <div th:if="${zipContents}">
+      <h6>包含的文件：</h6>
+      <ul>
+        <li th:each="entry : ${zipContents}" th:text="${entry}"></li>
+      </ul>
+    </div>
+  </div>
+  <div th:if="${error}" class="alert alert-danger mt-3">
+    <p th:text="${error}"></p>
+  </div>
+</div>
+</body>
+</html>

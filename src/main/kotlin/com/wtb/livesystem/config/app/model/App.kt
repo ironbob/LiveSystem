@@ -28,7 +28,7 @@ data class App(
     val user: User,
 
     @OneToOne(mappedBy = "app", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var liveConfig: LiveConfig? = null // 直播配置 (可选)
+    var liveConfig: LiveConfig? = null // 直播配置
 ) {
     fun updateLastModified() {
         lastUpdatedAt = Instant.now()

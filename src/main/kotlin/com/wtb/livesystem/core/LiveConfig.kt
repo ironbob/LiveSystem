@@ -26,6 +26,11 @@ data class LiveConfig(
 
 }
 
+
+/**
+ * LiveConfig 包含主播的相关配置， 话术稿，暖场词，口头禅，节奏
+ * 还包 括的有 随机事件 等
+ */
 fun parseLiveConfigZip(liveConfig: LiveConfig): LiveConfigDto {
     val dto = LiveConfigDto(liveConfig)
     val zipFile = File(liveConfig.zipPath ?: throw IllegalArgumentException("zipPath is null"))
@@ -37,7 +42,7 @@ fun parseLiveConfigZip(liveConfig: LiveConfig): LiveConfigDto {
             val inputStream = zip.getInputStream(entry)
 
             when {
-                name.endsWith("rythmConfig.json") -> {
+                name.endsWith("rhythmConfig.json") -> {
                     dto.rhythmConfig = inputStream.bufferedReader().use {
                         ObjectMapper().readValue(it, RhythmConfig::class.java)
                     }
@@ -105,6 +110,9 @@ fun parseScriptNameFromFile(fileName: String): String {
         ?: "未命名稿"
 }
 
+//格式
+// content内容#{ ("type1", 0.5),("type2", 0.2) }
+//type是事件名 @see [LiveEventType]
 fun parseWarmup(lines: List<String>): MutableList<Warmup> {
     val warmups = mutableListOf<Warmup>()
     for (line in lines) {

@@ -1,3 +1,9 @@
 file:
   upload-dir: uploads/configs  # 本地存储路径
   # 若使用云存储（如 S3），需配置 endpoint/access-key 等
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

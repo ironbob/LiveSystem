@@ -6,6 +6,7 @@ import com.wtb.livesystem.core.rule.RuleEvaluator
 import com.wtb.livesystem.core.rule.RuleFieldName
 import com.wtb.livesystem.core.rule.RuleParser
 import com.wtb.livesystem.core.streamer.LiveStreamer
+import com.wtb.livesystem.core.streamer.StreamerConfig
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.LocalDateTime
@@ -18,7 +19,16 @@ class AppInstance(private val app: App) {
     private var startTime: LocalDateTime? = null
 
     private val roomStatus: RoomStatus = RoomStatus(0, hashSetOf(), arrayListOf())
-    private val streamerState: LiveStreamer = LiveStreamer()
+    private val streamer: LiveStreamer
+    init {
+           val liveConfigDto = (parseLiveConfigZip(app.liveConfig!!))
+        val parseScripts = liveConfigDto.scripts.map {
+            ParsedScript(it)
+        }
+        val streamerConfig = StreamerConfig(parseScripts,liveConfigDto.warmConfig,liveConfigDto.rhythmConfig
+        ,liveConfigDto.catchphrases)
+        streamer = LiveStreamer(streamerConfig)
+    }
 
     private val processedActions = arrayListOf<ProcessAction>()
 
@@ -69,40 +79,10 @@ class AppInstance(private val app: App) {
         )
     }
 
-    private fun chooseScriptByRule() {
-        val script = app.liveConfig?.scripts?.first {
-            val rules = RuleParser.parseRules(it.ruleString)
-            rules.all {
-                RuleEvaluator.evaluate(it, getRuleStates())
-            }
-        }
-        if (script != null) {
-            if (streamerState.curScript != script) {
-                streamerState.updateScriptState(script)
-                logger.info("切换稿子")
-            }
-        }
-        if (!streamerState.hasScript()) {
-            streamerState.updateScriptState(app.liveConfig?.scripts?.firstOrNull())
-        }
-    }
 
-    /**
-     *
-     */
-    fun fetchNextSpeechReply(): SpeechReply? {
-        chooseScriptByRule()
-        streamerState.getNextSentence()?.let {
-            return makeNormalSpeechReply(it)
-        }
-        logger.error("没有找到合适的话")
-        return null
 
-    }
-
-    private fun makeNormalSpeechReply(content: String): SpeechReply {
-        val msg = ContentReplyMsg(content)
-        return SpeechReply(arrayListOf(msg))
+    fun fetchNextSpeechReply(): SpeechReply?{
+        return streamer.fetchNextSpeechReply(getRuleStates())
     }
 
     init {
@@ -140,6 +120,7 @@ class AppInstance(private val app: App) {
 
     val logger = LoggerFactory.getLogger(AppInstance::class.java)
     fun start() {
+        val zip = app.liveConfig
         running = true
         logger.info("应用 ${app.name} 已启动")
     }

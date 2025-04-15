@@ -1,25 +1,26 @@
 package com.wtb.livesystem.core.streamer
 
-import com.wtb.livesystem.core.Emotion
-import com.wtb.livesystem.core.ParsedScript
-import com.wtb.livesystem.core.ReadScriptState
-import com.wtb.livesystem.core.Script
+import com.wtb.livesystem.core.*
+import com.wtb.livesystem.core.rule.RuleEvaluator
+import com.wtb.livesystem.core.rule.RuleParser
 import org.slf4j.LoggerFactory
 
-class LiveStreamer {
+data class StreamerConfig(val parsedScripts: List<ParsedScript>,val warmupConfig:WarmupConfig,val rhythmConfig: RhythmConfig?,val catchphrases: MutableList<String> )
+
+class LiveStreamer(val streamerConfig: StreamerConfig) {
     val currentEmotion: Emotion? = null
     val lastSpokenAt: Long = 0
 
     private val logger = LoggerFactory.getLogger(LiveStreamer::class.java)
-    var curScript: Script? = null
+    var curScript: ParsedScript? = null
         set(value) {
             field = value
             if (value != null) {
-                scriptState = ReadScriptState(ParsedScript(value))
+                scriptState = ReadScriptState(value)
             }
         }
 
-    fun updateScriptState(script: Script?) {
+    fun updateScriptState(script: ParsedScript?) {
         curScript = script
     }
 
@@ -35,4 +36,39 @@ class LiveStreamer {
         return null
     }
 
+    public fun chooseScriptByRule(ruleStates: Map<String, Int>) {
+        val script = streamerConfig.parsedScripts.firstOrNull {
+            val rules = it.parsedRules
+            rules.all {
+                RuleEvaluator.evaluate(it, ruleStates)
+            }
+        }
+        if (script != null) {
+            if (curScript != script) {
+                updateScriptState(script)
+                logger.info("切换稿子")
+            }
+        }
+        if (!hasScript()) {
+            updateScriptState(streamerConfig.parsedScripts.firstOrNull())
+        }
+    }
+
+    private fun makeNormalSpeechReply(content: String): SpeechReply {
+        val msg = ContentReplyMsg(content)
+        return SpeechReply(arrayListOf(msg))
+    }
+
+    /**
+     *
+     */
+    fun fetchNextSpeechReply(ruleStates: Map<String, Int>): SpeechReply? {
+        chooseScriptByRule(ruleStates)
+        getNextSentence()?.let {
+            return makeNormalSpeechReply(it)
+        }
+        logger.error("没有找到合适的话")
+        return null
+
+    }
 }
