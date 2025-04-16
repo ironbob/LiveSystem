@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.wtb.livesystem.core.RhythmConfig
 import com.wtb.livesystem.core.Script
 import com.wtb.livesystem.core.rule.RuleParser
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.InputStreamResource
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -15,6 +17,7 @@ import java.security.Principal
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import java.io.File
 import java.io.FileInputStream
@@ -114,6 +117,28 @@ class ConfigController(
         return "redirect:/apps/$appId/configs"
     }
 
+    @GetMapping("/download")
+    fun downloadZip(@PathVariable appId: Long, response: HttpServletResponse): ResponseEntity<Any> {
+        val app = appService.findById(appId)
+        val zipPath = app.liveConfig?.zipPath
+
+        if (zipPath.isNullOrBlank()) {
+            return ResponseEntity.notFound().build()
+        }
+
+        val file = File(zipPath)
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build()
+        }
+
+        val resource = InputStreamResource(FileInputStream(file))
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"config.zip\"")
+            .contentLength(file.length())
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(resource)
+    }
 
 //    @PostMapping("/save")
 //    fun saveConfig(
