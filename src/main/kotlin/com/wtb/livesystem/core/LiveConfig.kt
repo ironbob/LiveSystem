@@ -110,11 +110,21 @@ fun parseScriptNameFromFile(fileName: String): String {
         ?: "未命名稿"
 }
 
+
+//enum class LiveEventType(val t:Int, val eventName:String){
+//    UserFollow(1,"关注"),
+//    UserEnter(2,"进入直播间"),
+//    UserMessage(3,"用户提问"),
+//    UserGift(4,"用户送礼物"),
+//    UserBuy(5,"用户购买")
+//}
+
 //格式
-// content内容#{ ("type1", 0.5),("type2", 0.2) }
+// content内容#("type1", 0.5),("type2", 0.2)
 //type是事件名 @see [LiveEventType]
 fun parseWarmup(lines: List<String>): MutableList<Warmup> {
     val warmups = mutableListOf<Warmup>()
+
     for (line in lines) {
         if (line.isBlank()) continue
         val parts = line.split("#", limit = 2)
@@ -123,17 +133,22 @@ fun parseWarmup(lines: List<String>): MutableList<Warmup> {
 
         if (parts.size == 2) {
             val affinityStr = parts[1].trim()
-            val regex = Regex("""\("(\w+)",\s*([0-9.]+)\)""")
-            regex.findAll(affinityStr).forEach {
-                val (type, weight) = it.destructured
-                affinities.add(WarmupAffinity(LiveEventType.valueOf(type), weight.toFloat()))
+            val regex = Regex("""\("([^"]+)",\s*([0-9.]+)\)""") // 中文括号匹配
+            regex.findAll(affinityStr).forEach { match ->
+                val (eventName, weightStr) = match.destructured
+                val eventType = LiveEventType.fromEventName(eventName)
+                if (eventType != null) {
+                    affinities.add(WarmupAffinity(eventType, weightStr.toFloat()))
+                }
             }
         }
 
         warmups.add(Warmup(content, affinities))
     }
+
     return warmups
 }
+
 
 data class LiveConfigDto(val config:LiveConfig){
     var rhythmConfig: RhythmConfig? = null

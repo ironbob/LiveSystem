@@ -23,4 +23,15 @@ class FileStorageService(
         return targetPath.toString() // 返回完整路径，或根据需求返回相对路径
     }
 
+    /**
+     * 存储 config.zip 到指定子目录（如 uploads/app_1），并使用固定文件名
+     */
+    fun storeConfigZip(appId: Long, file: MultipartFile): String {
+        val appDir = Paths.get(uploadDir, "app_$appId")
+        Files.createDirectories(appDir) // 确保子目录存在
+
+        val targetPath = appDir.resolve("config.zip")
+        file.transferTo(targetPath)
+        return targetPath.toString() // 返回完整路径
+    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.wtb.livesystem.core.RhythmConfig
 import com.wtb.livesystem.core.Script
 import com.wtb.livesystem.core.rule.RuleParser
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -62,8 +63,9 @@ class ConfigController(
     private val expectedFiles = setOf(
         "rhythmConfig.json",
         "catchphrases.txt",
-        "warmup.ini"
+        "warmup.txt"
     )
+
 
     private val scriptFilePattern = Regex("""script_.*\.(ini|txt)""")
     @PostMapping("/upload")
@@ -96,13 +98,15 @@ class ConfigController(
                     append("至少需要一个脚本文件（文件名以 script_ 开头）。")
                 }
             }
+            val app = appService.findById(appId)
+            model.addAttribute("app", app)
             model.addAttribute("error", msg)
-            return "apps/config"
+            return "apps/config_zip"
         }
 
         // 文件校验通过，可以将 zip 保存路径绑定到 LiveConfig
         val app = appService.findById(appId)
-        val zipFilePath = saveZipToDisk(zipFile, appId)
+        val zipFilePath = fileStorageService.storeConfigZip(appId,zipFile)
         app.initializeLiveConfig()
         app.liveConfig?.zipPath = zipFilePath
         appService.save(app)
@@ -110,14 +114,6 @@ class ConfigController(
         return "redirect:/apps/$appId/configs"
     }
 
-    fun saveZipToDisk(file: MultipartFile, appId: Long): String {
-        val dir = File("uploads/app_$appId")
-        if (!dir.exists()) dir.mkdirs()
-
-        val zipFile = File(dir, "config.zip")
-        file.transferTo(zipFile)
-        return zipFile.absolutePath
-    }
 
 //    @PostMapping("/save")
 //    fun saveConfig(
@@ -182,7 +178,7 @@ class ConfigController(
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
             } else {
                 val headers = HttpHeaders()
-                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"reader.json\"")
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"rhythmConfig.json\"")
                 ResponseEntity.ok()
                     .headers(headers)
                     .body(resource)
