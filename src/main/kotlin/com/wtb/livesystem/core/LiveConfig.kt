@@ -5,6 +5,7 @@ import com.wtb.livesystem.config.app.model.App
 import jakarta.persistence.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.commons.lang3.builder.ToStringExclude
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.zip.ZipFile
@@ -19,10 +20,15 @@ data class LiveConfig(
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "app_id", nullable = false)
+    @ToStringExclude
     val app: App,
 
+    @Column(name = "zip_path")
     var zipPath:String? = null
 ){
+    override fun toString(): String {
+        return "LiveConfig(id=$id, zipPath=$zipPath)"
+    }
 
 }
 
@@ -39,6 +45,9 @@ fun parseLiveConfigZip(liveConfig: LiveConfig): LiveConfigDto {
     ZipFile(zipFile).use { zip ->
         zip.entries().asSequence().forEach { entry ->
             val name = entry.name
+            if(name.contains("MACOSX")){
+                return@forEach
+            }
             val inputStream = zip.getInputStream(entry)
 
             when {

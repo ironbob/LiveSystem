@@ -15,7 +15,6 @@ import java.util.*
 
 class AppInstance(private val app: App) {
     private var running = false
-    private val speechQueue: Queue<String> = LinkedList()
     private var startTime: LocalDateTime? = null
 
     private val roomStatus: RoomStatus = RoomStatus(0, hashSetOf(), arrayListOf())
@@ -112,11 +111,6 @@ class AppInstance(private val app: App) {
         return minutes
     }
 
-    init {
-        speechQueue.add("你好，我是你的虚拟主播！")
-        speechQueue.add("接下来，我们继续进行直播...")
-        speechQueue.add("欢迎新的观众加入直播间！")
-    }
 
     val logger = LoggerFactory.getLogger(AppInstance::class.java)
     fun start() {
@@ -132,7 +126,7 @@ class AppInstance(private val app: App) {
 
     fun getNextSpeech(): String {
         return if (running) {
-            speechQueue.poll() ?: "主播暂时没有新的话要说"
+            streamer.getNextSentence()?:"无"
         } else {
             "应用未运行"
         }
