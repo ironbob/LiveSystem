@@ -24,54 +24,93 @@
     </tr>
   </table>
 
+
+  <div class="mt-4">
+    <button id="fetchScriptBtn" class="btn btn-info">拉取当前脚本内容</button>
+    <button id="nextSpeechBtn" class="btn btn-primary ms-2">拉取下一句内容</button>
+  </div>
+
+  <div class="row mt-4">
+    <!-- 当前脚本内容 -->
+    <div class="col-md-6">
+      <h4>当前脚本内容</h4>
+      <div id="scriptContent" class="border p-3" style="height: 300px; overflow-y: auto;">
+        <!-- 脚本内容展示在这里 -->
+      </div>
+    </div>
+
+    <!-- 主播说过的内容 -->
+    <div class="col-md-6">
+      <h4>主播说过的内容</h4>
+      <div id="spokenContent" class="border p-3" style="height: 300px; overflow-y: auto;">
+        <!-- 每次说过的话追加在这里 -->
+      </div>
+    </div>
+  </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script th:inline="javascript">
-  // var appId = "[[${appInstance.getApp().id}]]"
-  const appId = "1"; // 应用ID，根据当前展示的 App 替换
-
-  // Log: WebSocket 连接开始
+  const appId = [[${appInstance.app.id}]]; // 正确绑定 appId
   console.log(`Connecting to WebSocket for appId: ${appId}`);
 
-  // 创建 WebSocket 连接
   const socket = new WebSocket(`ws://127.0.0.1:8080/ws/runtime?appId=${appId}`);
 
-  // Log: 连接打开时
   socket.onopen = function(event) {
-    console.log(`WebSocket connection established for appId: ${appId}`);
+    console.log(`WebSocket connection established`);
   };
 
-  // Log: WebSocket 连接关闭时
   socket.onclose = function(event) {
-    console.log(`WebSocket connection closed for appId: ${appId}`);
-    if (event.wasClean) {
-      console.log("Connection closed cleanly");
-    } else {
-      console.error("Connection closed with errors");
+    console.log(`WebSocket connection closed`);
+  };
+
+  socket.onerror = function(event) {
+    console.error(`WebSocket error`, event);
+  };
+
+  socket.onmessage = function(event) {
+    console.log(`Received message: ${event.data}`);
+
+    const data = JSON.parse(event.data);
+
+    if (data.type === "speech") {
+      // 收到主播新的一句话，显示到 spokenContent 框里
+      $("#spokenContent").append(`<div>${data.content}</div>`);
+    } else if (data.type === "script") {
+      // 收到脚本信息，刷新当前脚本区域
+      $("#currentScript").text(data.content);
     }
   };
 
-  // Log: WebSocket 连接错误时
-  socket.onerror = function(event) {
-    console.error(`WebSocket error occurred for appId: ${appId}`, event);
-  };
+  // 点击拉取当前脚本
+  $("#fetchScriptBtn").click(function() {
+    console.log("Fetching current script...");
 
-  // 接收到消息时
-  socket.onmessage = function(event) {
-    console.log(`Received message for appId: ${appId}: ${event.data}`);
-    // 更新页面上的运行时长
-    $("#runningDuration").text(event.data); // 更新元素内容
-  };
+    $.get(`/running/${appId}/script`, function(response) {
+      console.log("Fetched script:", response);
 
-  // Log: WebSocket 连接正在发送数据
-  function sendMessage(message) {
-    console.log(`Sending message to WebSocket: ${message}`);
-    socket.send(message);
-  }
+      // 把脚本内容显示在 scriptContent 区域
+      const html = response.map(line => `<div>${line}</div>`).join("");
+      $("#scriptContent").html(html);
+    }).fail(function() {
+      console.error("Failed to fetch script content");
+    });
+  });
 
-  // Example of sending a message
-  // sendMessage("Ping from client");
+  // 点击拉取下一句内容
+  $("#nextSpeechBtn").click(function() {
+    console.log("Requesting next speech...");
+
+    $.post(`/running/${appId}/nextSpeech`, function(response) {
+      console.log("Received next speech:", response);
+
+      // 把下一句内容追加到 spokenContent 区域
+      $("#spokenContent").append(`<div>${response}</div>`);
+    }).fail(function() {
+      console.error("Failed to fetch next speech");
+    });
+  });
 </script>
 
 </body>

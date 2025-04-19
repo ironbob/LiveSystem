@@ -18,7 +18,7 @@ class AppInstance(private val app: App) {
     private var startTime: LocalDateTime? = null
 
     private val roomStatus: RoomStatus = RoomStatus(0, hashSetOf(), arrayListOf())
-    private val streamer: LiveStreamer
+    val streamer: LiveStreamer
     init {
            val liveConfigDto = (parseLiveConfigZip(app.liveConfig!!))
         val parseScripts = liveConfigDto.scripts.map {
