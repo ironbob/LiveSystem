@@ -62,9 +62,14 @@ fun parseLiveConfigZip(liveConfig: LiveConfig): LiveConfigDto {
                         .filter { it.isNotEmpty() }.toMutableList()
                 }
 
-                name.matches(Regex("""script\d+\.txt""")) -> {
+                name.startsWith("script_")->{
                     val iniContent = inputStream.bufferedReader().readText()
-                    dto.scripts.add(parseScriptCustomFormat(iniContent, name))
+                    parseScriptCustomFormat(iniContent, name)?.also {
+                        dto.scripts.add(it)
+                    }?: run {
+                        println("解析script失败")
+                    }
+
                 }
 
                 name == "warmup.ini" -> {
@@ -84,7 +89,7 @@ fun parseLiveConfigZip(liveConfig: LiveConfig): LiveConfigDto {
 //--rules--
 //在线人数 > 5
 //直播时长 > 30 且 直接时长 < 60
-fun parseScriptCustomFormat(content: String, fileName: String): Script {
+fun parseScriptCustomFormat(content: String, fileName: String): Script? {
     val sections = mutableMapOf<String, MutableList<String>>()
     var currentSection: String? = null
 
@@ -98,6 +103,10 @@ fun parseScriptCustomFormat(content: String, fileName: String): Script {
                 sections[currentSection]?.add(line)
             }
         }
+    }
+    if(sections["explanation"] == null){
+        println("解析稿子错误")
+        return null
     }
 
     val explanation = sections["explanation"]?.joinToString("\n")?.trim() ?: ""
@@ -113,7 +122,7 @@ fun parseScriptCustomFormat(content: String, fileName: String): Script {
 }
 
 fun parseScriptNameFromFile(fileName: String): String {
-    return Regex("""script_(.+)\.\w+$""")
+    return Regex("""^script_(.+)\.txt$""")
         .find(fileName)
         ?.groupValues?.get(1)
         ?: "未命名稿"

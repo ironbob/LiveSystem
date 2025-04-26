@@ -124,11 +124,11 @@ class AppInstance(private val app: App) {
         logger.info("应用 ${app.name} 已停止")
     }
 
-    fun getNextSpeech(): String {
+    fun getNextSpeech(): SpeechReply? {
         return if (running) {
-            streamer.getNextSentence()?:"无"
+            streamer.fetchNextSpeechReply(getRuleStates())
         } else {
-            "应用未运行"
+            null
         }
     }
 }

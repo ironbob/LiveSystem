@@ -5,7 +5,18 @@ import com.wtb.livesystem.core.rule.RuleEvaluator
 import com.wtb.livesystem.core.rule.RuleParser
 import org.slf4j.LoggerFactory
 
-data class StreamerConfig(val parsedScripts: List<ParsedScript>,val warmupConfig:WarmupConfig,val rhythmConfig: RhythmConfig?,val catchphrases: MutableList<String> )
+data class StreamerConfig(
+    val parsedScripts: List<ParsedScript>,
+    val warmupConfig: WarmupConfig,
+    val rhythmConfig: RhythmConfig?,
+    val catchphrases: MutableList<String>
+)
+
+fun List<SpeechReply>.formatted():List<String>{
+    return this.map{
+        it.getFormatedContent();
+    }
+}
 
 class LiveStreamer(val streamerConfig: StreamerConfig) {
     val currentEmotion: Emotion? = null
@@ -26,7 +37,7 @@ class LiveStreamer(val streamerConfig: StreamerConfig) {
 
     fun hasScript() = curScript != null
     private var scriptState: ReadScriptState? = null
-    fun getNextSentence(): String? {
+    fun getNextScriptSentence(): String? {
         scriptState?.also {
             return it.getNextSentence()
         } ?: run {
@@ -59,16 +70,26 @@ class LiveStreamer(val streamerConfig: StreamerConfig) {
         return SpeechReply(arrayListOf(msg))
     }
 
+    private val historyList = arrayListOf<SpeechReply>()
+    private fun addToHistory(reply: SpeechReply) {
+        historyList.add(reply)
+    }
+
+    fun getHistory(): List<SpeechReply>  = historyList
+
     /**
      *
      */
     fun fetchNextSpeechReply(ruleStates: Map<String, Int>): SpeechReply? {
         chooseScriptByRule(ruleStates)
-        getNextSentence()?.let {
-            return makeNormalSpeechReply(it)
+        getNextScriptSentence()?.let {
+            return makeNormalSpeechReply(it).also { it ->
+                addToHistory(it)
+            }
         }
         logger.error("没有找到合适的话")
         return null
 
     }
+
 }

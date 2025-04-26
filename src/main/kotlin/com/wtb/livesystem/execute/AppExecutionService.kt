@@ -42,7 +42,5 @@ class AppExecutionService(val appRepository: AppRepository) {
         } ?: false
     }
 
-    fun getNextSpeech(appId: Long): String? {
-        return runningApps[appId]?.getNextSpeech()
-    }
+
 }

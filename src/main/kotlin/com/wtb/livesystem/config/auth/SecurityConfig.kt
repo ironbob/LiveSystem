@@ -60,6 +60,7 @@ class SecurityConfig(
                 auth.requestMatchers("/register/**").permitAll()
                     .requestMatchers("/ws/**","/ws/*/**").permitAll()
                     .requestMatchers("/index").permitAll()
+                    .requestMatchers("/running/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/users").hasRole("ADMIN")
                     .anyRequest().authenticated()

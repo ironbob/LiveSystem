@@ -4,6 +4,9 @@ package com.wtb.livesystem.core.rule
 object RuleParser {
 
     fun parseRules(input: String): List<RuleModel> {
+        if(input.isEmpty()){
+            return emptyList()
+        }
         return input.split(",")
             .map { it.trim() }
             .map { parseLogicalRule(it) }

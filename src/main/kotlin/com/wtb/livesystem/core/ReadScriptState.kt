@@ -1,19 +1,15 @@
 package com.wtb.livesystem.core
-
 class ReadScriptState(val script: ParsedScript) {
     val alreadyReadSentence = arrayListOf<String>()
-    var lastReadSentence: String? = null
+    var lastIndex: Int = -1  // 初始为 -1，表示尚未开始阅读
 
     fun getNextSentence(): String? {
         if (script.explanations.isEmpty()) {
             return null
         }
-        lastReadSentence?.let {
-            var index = script.explanations.indexOf(lastReadSentence)
-            index++
-            index %= script.explanations.size
-            return script.explanations[index]
-        }
-        return script.explanations[0]
+        lastIndex = (lastIndex + 1) % script.explanations.size
+        val next = script.explanations[lastIndex]
+        alreadyReadSentence.add(next)
+        return next
     }
 }
